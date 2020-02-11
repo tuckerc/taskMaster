@@ -31,12 +31,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // add listener to addTask button
-        Button addTask = findViewById(R.id.addATask);
-        addTask.setOnClickListener(goToNewTaskCreator);
+        // add on click listener to newTaskButton
+        Button newTaskButton = findViewById(R.id.addTaskButton);
+        newTaskButton.setOnClickListener(goToNewTaskCreator);
 
-        // add listener to addTask button
-        Button allTasks = findViewById(R.id.);
-        addTask.setOnClickListener(goToNewTaskCreator);
+        // add on click listener to all tasks button
+        Button allTasksButton = findViewById(R.id.allTasksButton);
+        allTasksButton.setOnClickListener(goToAllTasks);
     }
+
 }
