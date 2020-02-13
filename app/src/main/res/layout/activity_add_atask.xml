@@ -4,35 +4,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddATask">
+    tools:context=".view.AddATask">
 
     <TextView
-        android:id="@+id/newTaskSubmitSuccess"
+        android:title="@+title/newTaskSubmitSuccess"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:labelFor="@id/newTaskBody"
+        android:labelFor="@title/newTaskBody"
         android:text="@string/new_task_created"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.512"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newTaskSubmit" />
+        app:layout_constraintTop_toBottomOf="@+title/newTaskSubmit" />
 
     <TextView
-        android:id="@+id/taskBodyLabel"
+        android:title="@+title/taskBodyLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:labelFor="@id/newTaskBody"
+        android:labelFor="@title/newTaskBody"
         android:text="@string/task_body"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newTaskName" />
+        app:layout_constraintTop_toBottomOf="@+title/newTaskName" />
 
     <TextView
-        android:id="@+id/addATask"
+        android:title="@+title/addATask"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -43,7 +43,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/newTaskName"
+        android:title="@+title/newTaskName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -53,23 +53,23 @@
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/taskNameLabel"
+        app:layout_constraintTop_toBottomOf="@+title/taskNameLabel"
         android:importantForAutofill="no" />
 
     <TextView
-        android:id="@+id/taskNameLabel"
+        android:title="@+title/taskNameLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:labelFor="@id/newTaskName"
+        android:labelFor="@title/newTaskName"
         android:text="@string/task_name"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addATask" />
+        app:layout_constraintTop_toBottomOf="@+title/addATask" />
 
     <EditText
-        android:id="@+id/newTaskBody"
+        android:title="@+title/newTaskBody"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -80,17 +80,17 @@
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/taskBodyLabel"
+        app:layout_constraintTop_toBottomOf="@+title/taskBodyLabel"
         android:importantForAutofill="no" />
 
     <Button
-        android:id="@+id/newTaskSubmit"
+        android:title="@+title/newTaskSubmit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="@string/create_new_task"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newTaskBody" />
+        app:layout_constraintTop_toBottomOf="@+title/newTaskBody" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
