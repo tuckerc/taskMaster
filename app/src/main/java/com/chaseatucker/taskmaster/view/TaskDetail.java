@@ -1,9 +1,11 @@
-package com.chaseatucker.taskmaster;
+package com.chaseatucker.taskmaster.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.widget.TextView;
+
+import com.chaseatucker.taskmaster.R;
 
 public class TaskDetail extends AppCompatActivity {
 

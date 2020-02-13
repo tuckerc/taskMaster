@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".view.MainActivity">
 
     <TextView
-        android:id="@+id/myTasks"
+        android:title="@+title/myTasks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -17,21 +17,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="289dp"
-        android:layout_height="391dp"
-        android:layout_marginTop="24dp"
-        android:contentDescription="@string/tasksimageplaceholder"
-        app:layout_constraintBottom_toTopOf="@+id/userTasksLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myTasks"
-        app:srcCompat="@android:drawable/checkbox_on_background"
-        tools:srcCompat="@android:drawable/checkbox_on_background" />
-
     <Button
-        android:id="@+id/allTasksButton"
+        android:title="@+title/allTasksButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="56dp"
@@ -41,7 +28,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
-        android:id="@+id/addTaskButton"
+        android:title="@+title/addTaskButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="56dp"
@@ -51,52 +38,67 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/feedDogsTaskButton"
+        android:title="@+title/feedDogsTaskButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:text="@string/feed_dogs"
-        app:layout_constraintBottom_toTopOf="@+id/allTasksButton"
+        app:layout_constraintBottom_toTopOf="@+title/allTasksButton"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
-        android:id="@+id/cleanDishesTaskButton"
+        android:title="@+title/cleanDishesTaskButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:text="@string/clean_dishes"
-        app:layout_constraintBottom_toTopOf="@+id/addTaskButton"
+        app:layout_constraintBottom_toTopOf="@+title/addTaskButton"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/makeDinnerTaskButton"
+        android:title="@+title/makeDinnerTaskButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:text="@string/make_dinner"
-        app:layout_constraintBottom_toTopOf="@+id/addTaskButton"
-        app:layout_constraintEnd_toStartOf="@+id/feedDogsTaskButton"
-        app:layout_constraintStart_toEndOf="@+id/cleanDishesTaskButton" />
+        app:layout_constraintBottom_toTopOf="@+title/addTaskButton"
+        app:layout_constraintEnd_toStartOf="@+title/feedDogsTaskButton"
+        app:layout_constraintStart_toEndOf="@+title/cleanDishesTaskButton" />
 
     <TextView
-        android:id="@+id/userTasksLabel"
+        android:title="@+title/userTasksLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/makeDinnerTaskButton"
+        app:layout_constraintBottom_toTopOf="@+title/makeDinnerTaskButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/settingsButton"
+        android:title="@+title/settingsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="56dp"
         android:text="@string/settings"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/allTasksButton"
-        app:layout_constraintStart_toEndOf="@+id/addTaskButton" />
+        app:layout_constraintEnd_toStartOf="@+title/allTasksButton"
+        app:layout_constraintStart_toEndOf="@+title/addTaskButton" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:title="@+title/mainRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintBottom_toTopOf="@+title/userTasksLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.444"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+title/myTasks"
+        app:layout_constraintVertical_bias="0.526" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
