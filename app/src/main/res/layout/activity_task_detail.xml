@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.TaskDetail">
+    tools:context=".TaskDetail">
 
     <TextView
-        android:title="@+title/taskDetailTitle"
+        android:id="@+id/taskDetailTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="56dp"
@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:title="@+title/taskDetails"
+        android:id="@+id/taskDetails"
         android:layout_width="351dp"
         android:layout_height="235dp"
         android:layout_marginStart="16dp"
@@ -30,5 +30,5 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+title/taskDetailTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/taskDetailTitle" />
 </androidx.constraintlayout.widget.ConstraintLayout>
