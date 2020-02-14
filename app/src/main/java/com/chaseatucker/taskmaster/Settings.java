@@ -1,4 +1,4 @@
-package com.chaseatucker.taskmaster.view;
+package com.chaseatucker.taskmaster;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,8 +9,10 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
-import com.chaseatucker.taskmaster.R;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class Settings extends AppCompatActivity {
 

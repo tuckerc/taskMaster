@@ -1,4 +1,4 @@
-package com.chaseatucker.taskmaster.view;
+package com.chaseatucker.taskmaster;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import com.chaseatucker.taskmaster.R;
 
 public class AddATask extends AppCompatActivity {
 

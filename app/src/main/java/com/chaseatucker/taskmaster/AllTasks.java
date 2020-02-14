@@ -1,10 +1,8 @@
-package com.chaseatucker.taskmaster.view;
+package com.chaseatucker.taskmaster;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-
-import com.chaseatucker.taskmaster.R;
 
 public class AllTasks extends AppCompatActivity {
 
