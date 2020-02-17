@@ -1,6 +1,7 @@
 package com.chaseatucker.taskmaster;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -11,10 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import com.chaseatucker.taskmaster.dummy.DummyContent;
-import com.chaseatucker.taskmaster.dummy.DummyContent.DummyItem;
+import com.chaseatucker.taskmaster.model.Task;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -23,13 +25,15 @@ import java.util.List;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class TaskFragment extends Fragment {
+public class TaskFragment extends Fragment implements MyTaskRecyclerViewAdapter.OnTaskListener {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+
+    private List<Task> taskList;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -71,7 +75,16 @@ public class TaskFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyTaskRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            this.taskList = new LinkedList<>();
+            taskList.add(new Task("Optimize Price Updates", "Reduce number of price updates on Value Shark prospective investments."));
+            taskList.add(new Task("Take Kids To Park", "It is a beautiful day. Take your kids to the park!"));
+            taskList.add(new Task("Clean The House", "The house is in sad shape. Clean it!"));
+            taskList.add(new Task("Finish Recycler View Lab", "This lab was due Thursday. You are a behind!"));
+            taskList.add(new Task("Read About Rooms", "I think Rooms will help you avoid hard coding all these tasks. You should probably learn about them."));
+            taskList.add(new Task("Submit Career Workshop Assignments", "Friday's workshop was great. Submit your assignments to get credit."));
+            taskList.add(new Task("Buy Coffee Filters"));
+            taskList.add(new Task("Fix Fence", "Part of the fence fell down two weeks ago. You need to talk to your neighbor about getting it rebuilt."));
+            recyclerView.setAdapter(new MyTaskRecyclerViewAdapter(taskList, mListener, this));
         }
         return view;
     }
@@ -83,8 +96,8 @@ public class TaskFragment extends Fragment {
         if (context instanceof OnListFragmentInteractionListener) {
             mListener = (OnListFragmentInteractionListener) context;
         } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
+//            throw new RuntimeException(context.toString()
+//                    + " must implement OnListFragmentInteractionListener");
         }
     }
 
@@ -92,6 +105,16 @@ public class TaskFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onTaskClick(int position) {
+        Task currentTask = taskList.get(position);
+        Intent i = new Intent(this.getContext(), TaskDetail.class);
+        i.putExtra("title", currentTask.getTitle());
+        i.putExtra("state", currentTask.getState());
+        i.putExtra("body", currentTask.getBody());
+        startActivity(i);
     }
 
     /**
@@ -106,6 +129,6 @@ public class TaskFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Task item);
     }
 }
