@@ -17,19 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="289dp"
-        android:layout_height="391dp"
-        android:layout_marginTop="24dp"
-        android:contentDescription="@string/tasksimageplaceholder"
-        app:layout_constraintBottom_toTopOf="@+id/userTasksLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/myTasks"
-        app:srcCompat="@android:drawable/checkbox_on_background"
-        tools:srcCompat="@android:drawable/checkbox_on_background" />
-
     <Button
         android:id="@+id/allTasksButton"
         android:layout_width="wrap_content"
@@ -98,5 +85,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/allTasksButton"
         app:layout_constraintStart_toEndOf="@+id/addTaskButton" />
+
+    <fragment
+        android:id="@+id/fragment"
+        android:name="com.chaseatucker.taskmaster.TaskFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/userTasksLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/myTasks" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
