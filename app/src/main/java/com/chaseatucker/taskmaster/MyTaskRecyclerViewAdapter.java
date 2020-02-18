@@ -22,21 +22,18 @@ public class MyTaskRecyclerViewAdapter extends RecyclerView.Adapter<MyTaskRecycl
 
     private final List<Task> mValues;
     private final OnListFragmentInteractionListener mListener;
-    private final OnTaskListener mOnTaskListener;
 
 
-    public MyTaskRecyclerViewAdapter(List<Task> items, OnListFragmentInteractionListener listener,
-                                     OnTaskListener onTaskListener) {
+    public MyTaskRecyclerViewAdapter(List<Task> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
-        mOnTaskListener = onTaskListener;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_task, parent, false);
-        return new ViewHolder(view, mOnTaskListener);
+        return new ViewHolder(view);
     }
 
     @Override
@@ -49,11 +46,11 @@ public class MyTaskRecyclerViewAdapter extends RecyclerView.Adapter<MyTaskRecycl
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
-                }
+                Intent i = new Intent(v.getContext(), TaskDetail.class);
+                i.putExtra("title", holder.mTitleView.getText());
+                i.putExtra("state", holder.mStateView.getText());
+                i.putExtra("body", holder.mBodyView.getText());
+                v.getContext().startActivity(i);
             }
         });
     }
@@ -63,39 +60,24 @@ public class MyTaskRecyclerViewAdapter extends RecyclerView.Adapter<MyTaskRecycl
         return mValues.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mTitleView;
         public final TextView mStateView;
         public final TextView mBodyView;
         public Task mItem;
-        OnTaskListener onTaskListener;
 
-        public ViewHolder(View view, OnTaskListener onTaskListener) {
+        public ViewHolder(View view) {
             super(view);
             mView = view;
             mTitleView = view.findViewById(R.id.fragmentTaskTitle);
             mStateView = view.findViewById(R.id.fragmentTaskState);
             mBodyView = view.findViewById(R.id.fragmentTaskBody);
-            this.onTaskListener = onTaskListener;
-
-            mView.setOnClickListener(this);
         }
 
         @Override
         public String toString() {
             return super.toString() + " '" + mStateView.getText() + "'";
         }
-
-
-        @Override
-        public void onClick(View v) {
-            onTaskListener.onTaskClick(getAdapterPosition());
-        }
-    }
-
-    // Got help from: https://www.youtube.com/watch?v=69C1ljfDvl0
-    public interface OnTaskListener{
-        void onTaskClick(int position);
     }
 }

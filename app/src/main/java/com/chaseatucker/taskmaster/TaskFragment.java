@@ -25,7 +25,7 @@ import java.util.List;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class TaskFragment extends Fragment implements MyTaskRecyclerViewAdapter.OnTaskListener {
+public class TaskFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -84,7 +84,7 @@ public class TaskFragment extends Fragment implements MyTaskRecyclerViewAdapter.
             taskList.add(new Task("Submit Career Workshop Assignments", "Friday's workshop was great. Submit your assignments to get credit."));
             taskList.add(new Task("Buy Coffee Filters"));
             taskList.add(new Task("Fix Fence", "Part of the fence fell down two weeks ago. You need to talk to your neighbor about getting it rebuilt."));
-            recyclerView.setAdapter(new MyTaskRecyclerViewAdapter(taskList, mListener, this));
+            recyclerView.setAdapter(new MyTaskRecyclerViewAdapter(taskList, mListener));
         }
         return view;
     }
@@ -105,16 +105,6 @@ public class TaskFragment extends Fragment implements MyTaskRecyclerViewAdapter.
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    @Override
-    public void onTaskClick(int position) {
-        Task currentTask = taskList.get(position);
-        Intent i = new Intent(this.getContext(), TaskDetail.class);
-        i.putExtra("title", currentTask.getTitle());
-        i.putExtra("state", currentTask.getState());
-        i.putExtra("body", currentTask.getBody());
-        startActivity(i);
     }
 
     /**
