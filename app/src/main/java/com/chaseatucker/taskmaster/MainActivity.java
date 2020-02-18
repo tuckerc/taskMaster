@@ -36,39 +36,6 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    // OnClickListener to go to clean dishes task
-    private View.OnClickListener goToCleanDishes = new View.OnClickListener() {
-        public void onClick(View v) {
-            Button cleanDishesButton = findViewById(R.id.cleanDishesTaskButton);
-            String buttonText = cleanDishesButton.getText().toString();
-            Intent i = new Intent(getBaseContext(), TaskDetail.class);
-            i.putExtra("taskName", buttonText);
-            startActivity(i);
-        }
-    };
-
-    // OnClickListener to go to make dinner task
-    private View.OnClickListener goToMakeDinner = new View.OnClickListener() {
-        public void onClick(View v) {
-            Button makeDinnerButton = findViewById(R.id.makeDinnerTaskButton);
-            String buttonText = makeDinnerButton.getText().toString();
-            Intent i = new Intent(getBaseContext(), TaskDetail.class);
-            i.putExtra("taskName", buttonText);
-            startActivity(i);
-        }
-    };
-
-    // OnClickListener to go to feed dogs task
-    private View.OnClickListener goToFeedDogs = new View.OnClickListener() {
-        public void onClick(View v) {
-            Button feedDogsButton = findViewById(R.id.feedDogsTaskButton);
-            String buttonText = feedDogsButton.getText().toString();
-            Intent i = new Intent(getBaseContext(), TaskDetail.class);
-            i.putExtra("taskName", buttonText);
-            startActivity(i);
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,18 +52,6 @@ public class MainActivity extends AppCompatActivity {
         // add on click listener to settings button
         Button settingsButton = findViewById(R.id.settingsButton);
         settingsButton.setOnClickListener(goToSettings);
-
-        // add on click listener to clean dishes button
-        Button cleanDishesButton = findViewById(R.id.cleanDishesTaskButton);
-        cleanDishesButton.setOnClickListener(goToCleanDishes);
-
-        // add on click listener to make dinner button
-        Button makeDinnerButton = findViewById(R.id.makeDinnerTaskButton);
-        makeDinnerButton.setOnClickListener(goToMakeDinner);
-
-        // add on click listener to feed dogs button
-        Button feedDogsButton = findViewById(R.id.feedDogsTaskButton);
-        feedDogsButton.setOnClickListener(goToFeedDogs);
 
         // update user tasks label text
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
