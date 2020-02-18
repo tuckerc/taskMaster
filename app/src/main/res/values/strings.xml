@@ -19,4 +19,5 @@
     <string name="clean_dishes">Clean Dishes</string>
     <string name="make_dinner">Make Dinner</string>
     <string name="task_state">Task State</string>
+    <string name="user_s_tasks">user\'s tasks</string>
 </resources>
