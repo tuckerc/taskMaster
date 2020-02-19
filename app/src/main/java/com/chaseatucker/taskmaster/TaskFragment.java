@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.chaseatucker.taskmaster.model.Task;
+import com.chaseatucker.taskmaster.room.AppDatabase;
+import com.chaseatucker.taskmaster.room.TaskMasterDao;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -75,15 +78,12 @@ public class TaskFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            this.taskList = new LinkedList<>();
-            taskList.add(new Task("Optimize Price Updates", "Reduce number of price updates on Value Shark prospective investments."));
-            taskList.add(new Task("Take Kids To Park", "It is a beautiful day. Take your kids to the park!"));
-            taskList.add(new Task("Clean The House", "The house is in sad shape. Clean it!"));
-            taskList.add(new Task("Finish Recycler View Lab", "This lab was due Thursday. You are a behind!"));
-            taskList.add(new Task("Read About Rooms", "I think Rooms will help you avoid hard coding all these tasks. You should probably learn about them."));
-            taskList.add(new Task("Submit Career Workshop Assignments", "Friday's workshop was great. Submit your assignments to get credit."));
-            taskList.add(new Task("Buy Coffee Filters"));
-            taskList.add(new Task("Fix Fence", "Part of the fence fell down two weeks ago. You need to talk to your neighbor about getting it rebuilt."));
+            AppDatabase db = Room.databaseBuilder(this.getContext().getApplicationContext(),
+                    AppDatabase.class, "pokemon")
+                    .allowMainThreadQueries()
+                    .build();
+            TaskMasterDao dao = db.taskMasterDao();
+            this.taskList = dao.getAllTasks();
             recyclerView.setAdapter(new MyTaskRecyclerViewAdapter(taskList, mListener));
         }
         return view;
