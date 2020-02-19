@@ -45,10 +45,6 @@ public class MainActivity extends AppCompatActivity {
         Button newTaskButton = findViewById(R.id.addTaskButton);
         newTaskButton.setOnClickListener(goToNewTaskCreator);
 
-        // add on click listener to all tasks button
-        Button allTasksButton = findViewById(R.id.allTasksButton);
-        allTasksButton.setOnClickListener(goToAllTasks);
-
         // add on click listener to settings button
         Button settingsButton = findViewById(R.id.settingsButton);
         settingsButton.setOnClickListener(goToSettings);

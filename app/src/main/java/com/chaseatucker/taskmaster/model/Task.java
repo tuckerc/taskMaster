@@ -16,22 +16,18 @@ public class Task {
     @ColumnInfo
     private String state;
 
-    public Task(String title) {
-        this.title = title;
-        this.body = "";
-        this.state = "new";
-    }
-
     public Task(String title, String body) {
         this.title = title;
         this.body = body;
         this.state = "new";
     }
 
-    public Task(String title, String body, String state) {
-        this.title = title;
-        this.body = body;
-        this.state = state;
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getTitle() {
