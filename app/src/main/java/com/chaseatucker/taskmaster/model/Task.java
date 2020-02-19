@@ -1,9 +1,19 @@
 package com.chaseatucker.taskmaster.model;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity
 public class Task {
 
+    @PrimaryKey
+    private long id;
+    @ColumnInfo
     private String title;
+    @ColumnInfo
     private String body;
+    @ColumnInfo
     private String state;
 
     public Task(String title) {
