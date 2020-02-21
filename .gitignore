@@ -13,3 +13,10 @@
 .externalNativeBuild
 .cxx
 *credentials.csv
+awsconfiguration.json
+aws-exports.js
+dist/
+amplify/\#current-cloud-backend
+amplify/.config/local-*
+amplify/backend/amplify-meta.json
+amplify/backend/awscloudformation
