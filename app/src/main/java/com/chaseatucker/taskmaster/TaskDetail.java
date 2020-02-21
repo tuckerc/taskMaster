@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.amazonaws.amplify.generated.graphql.GetTaskQuery;
 import com.amazonaws.amplify.generated.graphql.ListTasksQuery;
+import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
 import com.apollographql.apollo.GraphQLCall;
@@ -20,6 +22,7 @@ import javax.annotation.Nonnull;
 
 public class TaskDetail extends AppCompatActivity {
 
+    private static final String TAG = "cat.taskDetail";
     AWSAppSyncClient mAWSAppSyncClient;
 
     @Override
@@ -27,8 +30,12 @@ public class TaskDetail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_detail);
 
-        String id = getIntent().getStringExtra("id");
-        mAWSAppSyncClient.query(GetTaskQuery.builder().id(id).build())
+        mAWSAppSyncClient = AWSAppSyncClient.builder()
+                .context(getApplicationContext())
+                .awsConfiguration(new AWSConfiguration(getApplicationContext()))
+                .build();
+
+        mAWSAppSyncClient.query(GetTaskQuery.builder().id(getIntent().getStringExtra("id")).build())
                 .responseFetcher(AppSyncResponseFetchers.NETWORK_FIRST)
                 .enqueue(new GraphQLCall.Callback<GetTaskQuery.Data>() {
                     @Override
