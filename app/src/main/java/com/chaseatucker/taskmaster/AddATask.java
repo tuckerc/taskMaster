@@ -1,20 +1,28 @@
 package com.chaseatucker.taskmaster;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.room.Room;
-
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
-import com.chaseatucker.taskmaster.model.Task;
-import com.chaseatucker.taskmaster.room.AppDatabase;
-import com.chaseatucker.taskmaster.room.TaskMasterDao;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.amazonaws.amplify.generated.graphql.CreateTaskMutation;
+import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
+import com.apollographql.apollo.GraphQLCall;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
+
+import javax.annotation.Nonnull;
+
+import type.CreateTaskInput;
 
 public class AddATask extends AppCompatActivity {
+
+    private static String TAG = "cat.addTask";
+    AWSAppSyncClient mAWSAppSyncClient;
 
     // Create an anonymous implementation of OnClickListener
     private View.OnClickListener newTaskCreateListener = new View.OnClickListener() {
@@ -25,22 +33,26 @@ public class AddATask extends AppCompatActivity {
             EditText taskBody = findViewById(R.id.newTaskBodyPT);
             String taskBodyStr = taskBody.getText().toString();
 
-            // create the new task
-            Task newTask = new Task(taskNameStr, taskBodyStr);
+            CreateTaskInput newTask = CreateTaskInput.builder().
+                    title(taskNameStr).
+                    body(taskBodyStr).
+                    state("new").
+                    build();
 
-            // use the Room db
-            AppDatabase db = Room.databaseBuilder(getApplicationContext(),
-                    AppDatabase.class, "pokemon")
-                    .allowMainThreadQueries()
-                    .build();
-            TaskMasterDao dao = db.taskMasterDao();
+            mAWSAppSyncClient.mutate(CreateTaskMutation.builder().input(newTask).build()).enqueue(
+                    new GraphQLCall.Callback<CreateTaskMutation.Data>() {
+                        @Override
+                        public void onResponse(@Nonnull Response<CreateTaskMutation.Data> response) {
+                            // go back to previous activity
+                            finish();
+                        }
 
-            // add the new task to the db
-            dao.addTask(newTask);
-
-            // go back to main activity
-            Intent i = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(i);
+                        @Override
+                        public void onFailure(@Nonnull ApolloException e) {
+                            Log.w(TAG, "failure");
+                        }
+                    }
+            );
         }
     };
 
@@ -48,6 +60,11 @@ public class AddATask extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_atask);
+
+        mAWSAppSyncClient = AWSAppSyncClient.builder()
+                .context(getApplicationContext())
+                .awsConfiguration(new AWSConfiguration(getApplicationContext()))
+                .build();
 
         // add listener to new task submit button
         Button newTaskCreateButton = findViewById(R.id.newTaskSubmit);
