@@ -1,26 +1,31 @@
 package com.chaseatucker.taskmaster;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import com.amazonaws.amplify.generated.graphql.ListTasksQuery;
+import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
+import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
+import com.apollographql.apollo.GraphQLCall;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
 
-import com.chaseatucker.taskmaster.model.Task;
-import com.chaseatucker.taskmaster.room.AppDatabase;
-import com.chaseatucker.taskmaster.room.TaskMasterDao;
-
-import java.util.LinkedList;
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 /**
  * A fragment representing a list of Items.
@@ -30,13 +35,11 @@ import java.util.List;
  */
 public class TaskFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
-
-    private List<Task> taskList;
+    private RecyclerView recyclerView;
+    private AWSAppSyncClient mAWSAppSyncClient;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -72,23 +75,47 @@ public class TaskFragment extends Fragment {
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+            recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            AppDatabase db = Room.databaseBuilder(this.getContext().getApplicationContext(),
-                    AppDatabase.class, "pokemon")
-                    .allowMainThreadQueries()
-                    .build();
-            TaskMasterDao dao = db.taskMasterDao();
-            this.taskList = dao.getAllTasks();
-            recyclerView.setAdapter(new MyTaskRecyclerViewAdapter(taskList, mListener));
         }
+
+        mAWSAppSyncClient = AWSAppSyncClient.builder()
+                .context(view.getContext().getApplicationContext())
+                .awsConfiguration(new AWSConfiguration(view.getContext().getApplicationContext()))
+                .build();
+
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mAWSAppSyncClient.query(ListTasksQuery.builder().build())
+                .responseFetcher(AppSyncResponseFetchers.NETWORK_FIRST)
+                .enqueue(new GraphQLCall.Callback<ListTasksQuery.Data>() {
+                    @Override
+                    public void onResponse(@Nonnull Response<ListTasksQuery.Data> response) {
+
+                        Handler h = new Handler(Looper.getMainLooper()){
+                            @Override
+                            public void handleMessage(Message inputMessage) {
+                                recyclerView.setAdapter(new MyTaskRecyclerViewAdapter(response.data().listTasks().items(), null));
+                            }
+                        };
+                        h.obtainMessage().sendToTarget();
+                    }
+
+                    @Override
+                    public void onFailure(@Nonnull ApolloException e) {
+
+                    }
+                });
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -119,6 +146,6 @@ public class TaskFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(Task item);
+        void onListFragmentInteraction(ListTasksQuery.Item item);
     }
 }

@@ -1,0 +1,41 @@
+{
+    "providers": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-taskmaster-amplify-122339-authRole",
+            "UnauthRoleArn": "arn:aws:iam::621239903746:role/amplify-taskmaster-amplify-122339-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::621239903746:role/amplify-taskmaster-amplify-122339-authRole",
+            "Region": "us-west-2",
+            "DeploymentBucketName": "amplify-taskmaster-amplify-122339-deployment",
+            "UnauthRoleName": "amplify-taskmaster-amplify-122339-unauthRole",
+            "StackName": "amplify-taskmaster-amplify-122339",
+            "StackId": "arn:aws:cloudformation:us-west-2:621239903746:stack/amplify-taskmaster-amplify-122339/e28b6640-541e-11ea-b4cc-0a5fa98e8810",
+            "AmplifyAppId": "d2s4zvpwi32d0n"
+        }
+    },
+    "api": {
+        "amplifyDatasource": {
+            "service": "AppSync",
+            "providerPlugin": "awscloudformation",
+            "output": {
+                "authConfig": {
+                    "additionalAuthenticationProviders": [],
+                    "defaultAuthentication": {
+                        "authenticationType": "API_KEY",
+                        "apiKeyConfig": {
+                            "description": "API key for Task Master app",
+                            "apiKeyExpirationDays": 7
+                        }
+                    }
+                },
+                "GraphQLAPIIdOutput": "zyeapmozynep3jmjn5rcilll5m",
+                "GraphQLAPIEndpointOutput": "https://oyvs5ug725g2ro2ntrreem5bg4.appsync-api.us-west-2.amazonaws.com/graphql",
+                "GraphQLAPIKeyOutput": "da2-joaf64hfkfeg5hamt45nvh4qzu"
+            },
+            "lastPushTimeStamp": "2020-02-20T23:17:15.145Z",
+            "providerMetadata": {
+                "s3TemplateURL": "https://s3.amazonaws.com/amplify-taskmaster-amplify-122339-deployment/amplify-cfn-templates/api/cloudformation-template.json",
+                "logicalId": "apiamplifyDatasource"
+            }
+        }
+    }
+}
