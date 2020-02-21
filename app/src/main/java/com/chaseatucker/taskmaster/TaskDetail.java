@@ -3,25 +3,67 @@ package com.chaseatucker.taskmaster;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.widget.TextView;
 
+import com.amazonaws.amplify.generated.graphql.GetTaskQuery;
+import com.amazonaws.amplify.generated.graphql.ListTasksQuery;
+import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
+import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
+import com.apollographql.apollo.GraphQLCall;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
+
+import javax.annotation.Nonnull;
+
 public class TaskDetail extends AppCompatActivity {
+
+    AWSAppSyncClient mAWSAppSyncClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_detail);
 
-        String taskName = getIntent().getStringExtra("title");
-        TextView taskTitle = findViewById(R.id.taskDetailTitle);
-        taskTitle.setText(taskName);
+        String id = getIntent().getStringExtra("id");
+        mAWSAppSyncClient.query(GetTaskQuery.builder().id(id).build())
+                .responseFetcher(AppSyncResponseFetchers.NETWORK_FIRST)
+                .enqueue(new GraphQLCall.Callback<GetTaskQuery.Data>() {
+                    @Override
+                    public void onResponse(@Nonnull Response<GetTaskQuery.Data> response) {
+                        Handler h = new Handler(Looper.getMainLooper()){
+                            @Override
+                            public void handleMessage(Message inputMessage) {
+                                String taskName = response.data().getTask().title();
+                                TextView taskTitle = findViewById(R.id.taskDetailTitle);
+                                taskTitle.setText(taskName);
 
-        String taskState = getIntent().getStringExtra("state");
-        TextView taskStateTextView = findViewById(R.id.taskStateTextView);
-        taskStateTextView.setText(taskState);
+                                String taskState = response.data().getTask().state();
+                                TextView taskStateTextView = findViewById(R.id.taskStateTextView);
+                                taskStateTextView.setText(taskState);
 
-        String taskBody = getIntent().getStringExtra("body");
-        TextView taskBodyTextView = findViewById(R.id.taskBodyTextView);
-        taskBodyTextView.setText(taskBody);
+                                String taskBody = response.data().getTask().body();
+                                TextView taskBodyTextView = findViewById(R.id.taskBodyTextView);
+                                taskBodyTextView.setText(taskBody);
+                            }
+                        };
+                        h.obtainMessage().sendToTarget();
+                    }
+
+                    @Override
+                    public void onFailure(@Nonnull ApolloException e) {
+
+                    }
+                });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+
+
     }
 }

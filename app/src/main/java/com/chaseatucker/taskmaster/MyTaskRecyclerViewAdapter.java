@@ -47,9 +47,7 @@ public class MyTaskRecyclerViewAdapter extends RecyclerView.Adapter<MyTaskRecycl
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(v.getContext(), TaskDetail.class);
-                i.putExtra("title", holder.mTitleView.getText());
-                i.putExtra("state", holder.mStateView.getText());
-                i.putExtra("body", holder.mBodyView.getText());
+                i.putExtra("id", mValues.get(position).id());
                 v.getContext().startActivity(i);
             }
         });

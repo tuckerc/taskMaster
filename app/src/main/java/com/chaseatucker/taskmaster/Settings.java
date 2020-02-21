@@ -29,8 +29,7 @@ public class Settings extends AppCompatActivity {
             editor.putString("username", username);
             editor.apply();
             // go back to main activity
-            Intent i = new Intent(getBaseContext(), MainActivity.class);
-            startActivity(i);
+            finish();
         }
     };
 
