@@ -20,4 +20,5 @@
     <string name="make_dinner">Make Dinner</string>
     <string name="task_state">Task State</string>
     <string name="user_s_tasks">user\'s tasks</string>
+    <string name="team_name">Team Name</string>
 </resources>

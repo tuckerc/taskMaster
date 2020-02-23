@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.amazonaws.amplify.generated.graphql.ListTasksQuery;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
+import com.amazonaws.mobileconnectors.appsync.AppSyncSubscriptionCall;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
 import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
@@ -40,6 +41,7 @@ public class TaskFragment extends Fragment {
     private OnListFragmentInteractionListener mListener;
     private RecyclerView recyclerView;
     private AWSAppSyncClient mAWSAppSyncClient;
+    private AppSyncSubscriptionCall subscriptionWatcher;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
