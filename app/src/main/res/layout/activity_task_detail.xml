@@ -10,9 +10,7 @@
         android:id="@+id/taskDetailTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
         android:text="@string/task_details"
         android:textAlignment="center"
         android:textColor="@android:color/black"
@@ -43,6 +41,44 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/customborder"
         android:text="@string/task_body"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/taskTeamTextView" />
+
+    <Button
+        android:id="@+id/update_task_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/update_task"
+        app:layout_constraintEnd_toStartOf="@+id/delete_task_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/taskBodyTextView" />
+
+    <Button
+        android:id="@+id/delete_task_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:text="@string/delete_task"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/update_task_button"
+        app:layout_constraintTop_toBottomOf="@+id/taskBodyTextView" />
+
+    <TextView
+        android:id="@+id/taskTeamTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/task_team"
+        android:textAlignment="center"
         android:textColor="@android:color/black"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"

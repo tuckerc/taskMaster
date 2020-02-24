@@ -21,4 +21,17 @@
     <string name="task_state">Task State</string>
     <string name="user_s_tasks">user\'s tasks</string>
     <string name="team_name">Team Name</string>
+    <string name="update_task">Update Task</string>
+    <string name="delete_task">Delete Task</string>
+    <string name="save_username">Save Username</string>
+    <string name="task_team">Task Team</string>
+    <string name="save_user_team">Save User Team</string>
+    <string name="current_team">Current Team</string>
+    <string name="current_state">Current State</string>
+    <string-array name="task_states_array">
+        <item>New</item>
+        <item>In Progress</item>
+        <item>Review</item>
+        <item>Complete</item>
+    </string-array>
 </resources>

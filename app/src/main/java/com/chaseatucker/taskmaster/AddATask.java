@@ -23,6 +23,7 @@ import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,6 +39,8 @@ public class AddATask extends AppCompatActivity implements
     Spinner teamsSpinner;
     List<String> teamList;
     ArrayAdapter<String> adapter;
+    HashMap<String, String> teamIDsMap;
+    String selectedTeamID = "";
 
     // Create an anonymous implementation of OnClickListener
     private View.OnClickListener newTaskCreateListener = new View.OnClickListener() {
@@ -52,6 +55,7 @@ public class AddATask extends AppCompatActivity implements
                     title(taskNameStr).
                     body(taskBodyStr).
                     state("new").
+                    taskTeamId(selectedTeamID).
                     build();
 
             mAWSAppSyncClient.mutate(CreateTaskMutation.builder().input(newTask).build()).enqueue(
@@ -64,7 +68,7 @@ public class AddATask extends AppCompatActivity implements
 
                         @Override
                         public void onFailure(@Nonnull ApolloException e) {
-                            Log.w(TAG, "failure");
+                            Log.i(TAG, "failed to add task: " + e);
                         }
                     }
             );
@@ -90,6 +94,8 @@ public class AddATask extends AppCompatActivity implements
 
         teamList = new LinkedList<>();
 
+        teamIDsMap = new HashMap<>();
+
         adapter = new ArrayAdapter<>(getApplicationContext(),
                 android.R.layout.simple_spinner_item, teamList);
 
@@ -104,6 +110,9 @@ public class AddATask extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
 
+        teamList.clear();
+        teamIDsMap.clear();
+
         mAWSAppSyncClient.query(ListTeamsQuery.builder().build())
                 .responseFetcher(AppSyncResponseFetchers.NETWORK_FIRST)
                 .enqueue(new GraphQLCall.Callback<ListTeamsQuery.Data>() {
@@ -114,6 +123,7 @@ public class AddATask extends AppCompatActivity implements
                             public void handleMessage(Message inputMessage) {
                                 for(ListTeamsQuery.Item item : response.data().listTeams().items()) {
                                     teamList.add(item.name());
+                                    teamIDsMap.put(item.name(), item.id());
                                     adapter.notifyDataSetChanged();
                                 }
                             }
@@ -130,7 +140,9 @@ public class AddATask extends AppCompatActivity implements
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+        // set currentTeamID based on ID of selected team name
+        String teamName = parent.getItemAtPosition(position).toString();
+        selectedTeamID = teamIDsMap.get(teamName);
     }
 
     @Override
