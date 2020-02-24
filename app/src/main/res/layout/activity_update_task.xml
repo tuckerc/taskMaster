@@ -90,7 +90,7 @@
         android:id="@+id/teamsSpinnerLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="161dp"
         android:labelFor="@id/update_teams_spinner"
         android:text="@string/team_name"
         android:textSize="18sp"
