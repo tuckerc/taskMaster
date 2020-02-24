@@ -3,6 +3,16 @@ type Task {
   title: String
   body: String
   state: String
+  team: Team
+  _version: Int!
+  _deleted: Boolean
+  _lastChangedAt: AWSTimestamp!
+}
+
+type Team {
+  id: ID!
+  name: String
+  tasks(filter: ModelTaskFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelTaskConnection
   _version: Int!
   _deleted: Boolean
   _lastChangedAt: AWSTimestamp!
@@ -106,6 +116,9 @@ type Query {
   syncTasks(filter: ModelTaskFilterInput, limit: Int, nextToken: String, lastSync: AWSTimestamp): ModelTaskConnection
   getTask(id: ID!): Task
   listTasks(filter: ModelTaskFilterInput, limit: Int, nextToken: String): ModelTaskConnection
+  syncTeams(filter: ModelTeamFilterInput, limit: Int, nextToken: String, lastSync: AWSTimestamp): ModelTeamConnection
+  getTeam(id: ID!): Team
+  listTeams(filter: ModelTeamFilterInput, limit: Int, nextToken: String): ModelTeamConnection
 }
 
 input CreateTaskInput {
@@ -114,6 +127,7 @@ input CreateTaskInput {
   body: String
   state: String
   _version: Int
+  taskTeamId: ID
 }
 
 input UpdateTaskInput {
@@ -122,6 +136,7 @@ input UpdateTaskInput {
   body: String
   state: String
   _version: Int
+  taskTeamId: ID
 }
 
 input DeleteTaskInput {
@@ -133,6 +148,9 @@ type Mutation {
   createTask(input: CreateTaskInput!, condition: ModelTaskConditionInput): Task
   updateTask(input: UpdateTaskInput!, condition: ModelTaskConditionInput): Task
   deleteTask(input: DeleteTaskInput!, condition: ModelTaskConditionInput): Task
+  createTeam(input: CreateTeamInput!, condition: ModelTeamConditionInput): Team
+  updateTeam(input: UpdateTeamInput!, condition: ModelTeamConditionInput): Team
+  deleteTeam(input: DeleteTeamInput!, condition: ModelTeamConditionInput): Team
 }
 
 input ModelTaskConditionInput {
@@ -161,4 +179,57 @@ type Subscription {
   onCreateTask: Task @aws_subscribe(mutations: ["createTask"])
   onUpdateTask: Task @aws_subscribe(mutations: ["updateTask"])
   onDeleteTask: Task @aws_subscribe(mutations: ["deleteTask"])
+  onCreateTeam: Team @aws_subscribe(mutations: ["createTeam"])
+  onUpdateTeam: Team @aws_subscribe(mutations: ["updateTeam"])
+  onDeleteTeam: Team @aws_subscribe(mutations: ["deleteTeam"])
+}
+
+input TaskInput {
+  id: ID!
+  title: String
+  body: String
+  state: String
+  _version: Int!
+  _deleted: Boolean
+  _lastChangedAt: AWSTimestamp!
+}
+
+type ModelTeamConnection {
+  items: [Team]
+  nextToken: String
+  startedAt: AWSTimestamp
+}
+
+input ModelTeamFilterInput {
+  id: ModelIDInput
+  name: ModelStringInput
+  and: [ModelTeamFilterInput]
+  or: [ModelTeamFilterInput]
+  not: ModelTeamFilterInput
+}
+
+input CreateTeamInput {
+  id: ID
+  name: String
+  tasks: [TaskInput]
+  _version: Int
+}
+
+input UpdateTeamInput {
+  id: ID!
+  name: String
+  tasks: [TaskInput]
+  _version: Int
+}
+
+input DeleteTeamInput {
+  id: ID
+  _version: Int
+}
+
+input ModelTeamConditionInput {
+  name: ModelStringInput
+  and: [ModelTeamConditionInput]
+  or: [ModelTeamConditionInput]
+  not: ModelTeamConditionInput
 }

@@ -1,10 +1,12 @@
 package com.chaseatucker.taskmaster;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,14 +20,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.amazonaws.amplify.generated.graphql.ListTasksQuery;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
+import com.amazonaws.mobileconnectors.appsync.AppSyncSubscriptionCall;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
 import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+
+import type.TaskInput;
 
 /**
  * A fragment representing a list of Items.
@@ -35,11 +41,15 @@ import javax.annotation.Nonnull;
  */
 public class TaskFragment extends Fragment {
 
+    String TAG = "cat.taskFragment";
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
     private RecyclerView recyclerView;
     private AWSAppSyncClient mAWSAppSyncClient;
+    MyTaskRecyclerViewAdapter adapter;
+    List<ListTasksQuery.Item> taskList;
+    private AppSyncSubscriptionCall subscriptionWatcher;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -61,6 +71,10 @@ public class TaskFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        taskList = new LinkedList<>();
+
+        adapter = new MyTaskRecyclerViewAdapter(taskList, null);
 
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
@@ -95,6 +109,8 @@ public class TaskFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        taskList.clear();
+
         mAWSAppSyncClient.query(ListTasksQuery.builder().build())
                 .responseFetcher(AppSyncResponseFetchers.NETWORK_FIRST)
                 .enqueue(new GraphQLCall.Callback<ListTasksQuery.Data>() {
@@ -104,7 +120,27 @@ public class TaskFragment extends Fragment {
                         Handler h = new Handler(Looper.getMainLooper()){
                             @Override
                             public void handleMessage(Message inputMessage) {
-                                recyclerView.setAdapter(new MyTaskRecyclerViewAdapter(response.data().listTasks().items(), null));
+                                SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(recyclerView.getContext().getApplicationContext());
+                                String teamID = p.getString("userTeamID", "");
+                                if(response.data().listTasks().items() != null) {
+                                    if(teamID != "") {
+                                        for(ListTasksQuery.Item item : response.data().listTasks().items()) {
+                                            if(item._deleted() == null || !item._deleted()) {
+                                                if(item.team() != null && item.team().id().equals(teamID)) {
+                                                    taskList.add(item);
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        for(ListTasksQuery.Item item : response.data().listTasks().items()) {
+                                            if(item._deleted() == null || !item._deleted()) {
+                                                taskList.add(item);
+                                            }
+                                        }
+                                    }
+                                }
+                                recyclerView.setAdapter(adapter);
+                                adapter.notifyDataSetChanged();
                             }
                         };
                         h.obtainMessage().sendToTarget();

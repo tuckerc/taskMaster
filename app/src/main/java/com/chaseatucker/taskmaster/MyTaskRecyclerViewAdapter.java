@@ -40,8 +40,6 @@ public class MyTaskRecyclerViewAdapter extends RecyclerView.Adapter<MyTaskRecycl
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.mTitleView.setText(mValues.get(position).title());
-        holder.mStateView.setText(mValues.get(position).state());
-        holder.mBodyView.setText(mValues.get(position).body());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,21 +59,17 @@ public class MyTaskRecyclerViewAdapter extends RecyclerView.Adapter<MyTaskRecycl
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mTitleView;
-        public final TextView mStateView;
-        public final TextView mBodyView;
         public ListTasksQuery.Item mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mTitleView = view.findViewById(R.id.fragmentTaskTitle);
-            mStateView = view.findViewById(R.id.fragmentTaskState);
-            mBodyView = view.findViewById(R.id.fragmentTaskBody);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mStateView.getText() + "'";
+            return super.toString() + " '" + mTitleView.getText() + "'";
         }
     }
 }
