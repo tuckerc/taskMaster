@@ -65,13 +65,16 @@ public class UpdateTask extends AppCompatActivity implements
                     taskTeamId(selectedTeamID).
                     build();
 
-            Log.i(TAG, "updated task: " + task.state().toString());
+            Log.i(TAG, "updated task state: " + task.state());
+            Log.i(TAG, "updated task team: " + task.taskTeamId());
 
             mAWSAppSyncClient.mutate(UpdateTaskMutation.builder().input(task).build()).enqueue(
                     new GraphQLCall.Callback<UpdateTaskMutation.Data>() {
                         @Override
                         public void onResponse(@Nonnull Response<UpdateTaskMutation.Data> response) {
                             // go back to previous activity
+                            Log.i(TAG,"updated task state from response: " + response.data().updateTask().state());
+                            Log.i(TAG, "updated team name from response: " + response.data().updateTask().team().name());
                             finish();
                         }
 
