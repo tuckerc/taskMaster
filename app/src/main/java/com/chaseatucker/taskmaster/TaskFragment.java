@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,8 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-
-import type.TaskInput;
 
 /**
  * A fragment representing a list of Items.

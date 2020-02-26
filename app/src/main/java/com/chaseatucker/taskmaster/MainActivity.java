@@ -1,16 +1,13 @@
 package com.chaseatucker.taskmaster;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,54 +18,38 @@ import com.amazonaws.mobile.client.SignOutOptions;
 import com.amazonaws.mobile.client.UserState;
 import com.amazonaws.mobile.client.UserStateDetails;
 
-import java.util.Map;
-
 public class MainActivity extends AppCompatActivity {
 
     String TAG = "cat.MainActivity";
     String givenName = "";
 
     // OnClickListener to go to add a task
-    private View.OnClickListener goToNewTaskCreator = new View.OnClickListener() {
-        public void onClick(View v) {
-            Intent i = new Intent(getBaseContext(), AddATask.class);
-            startActivity(i);
-        }
+    private View.OnClickListener goToNewTaskCreator = v -> {
+        Intent i = new Intent(getBaseContext(), AddATask.class);
+        startActivity(i);
     };
 
     // OnClickListener to go to all tasks
-    private View.OnClickListener goToAllTasks = new View.OnClickListener() {
-        public void onClick(View v) {
-            Intent i = new Intent(getBaseContext(), AllTasks.class);
-            startActivity(i);
-        }
-    };
+    private View.OnClickListener logout = v -> {
+        AWSMobileClient.getInstance().signOut(SignOutOptions.builder().signOutGlobally(true).build(), new Callback<Void>() {
+            @Override
+            public void onResult(final Void result) {
+                Log.d(TAG, "signed-out");
+            }
 
-    // OnClickListener to go to all tasks
-    private View.OnClickListener logout = new View.OnClickListener() {
-        public void onClick(View v) {
-            AWSMobileClient.getInstance().signOut(SignOutOptions.builder().signOutGlobally(true).build(), new Callback<Void>() {
-                @Override
-                public void onResult(final Void result) {
-                    Log.d(TAG, "signed-out");
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Log.e(TAG, "sign-out error", e);
-                }
-            });
-            AWSMobileClient.getInstance().signOut();
-            userSignIn();
-        }
+            @Override
+            public void onError(Exception e) {
+                Log.e(TAG, "sign-out error", e);
+            }
+        });
+        AWSMobileClient.getInstance().signOut();
+        userSignIn();
     };
 
     // OnClickListener to go to settings
-    private View.OnClickListener goToSettings = new View.OnClickListener() {
-        public void onClick(View v) {
-            Intent i = new Intent(getBaseContext(), Settings.class);
-            startActivity(i);
-        }
+    private View.OnClickListener goToSettings = v -> {
+        Intent i = new Intent(getBaseContext(), Settings.class);
+        startActivity(i);
     };
 
     @Override

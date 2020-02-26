@@ -1,5 +1,7 @@
 package com.chaseatucker.taskmaster;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -30,6 +33,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 import type.CreateTaskInput;
+
+import static com.chaseatucker.taskmaster.FilePickerFragment.PICKFILE_RESULT_CODE;
 
 public class AddATask extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
@@ -104,6 +109,31 @@ public class AddATask extends AppCompatActivity implements
 
         teamsSpinner.setAdapter(adapter);
         teamsSpinner.setOnItemSelectedListener(this);
+
+        Button btnChooseFile = this.findViewById(R.id.btn_choose_file);
+
+        btnChooseFile.setOnClickListener(v -> {
+            Log.i(TAG, "Choose File Button clicked");
+            Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+            chooseFile.setType("*/*");
+            chooseFile = Intent.createChooser(chooseFile, "Choose a file");
+            startActivityForResult(chooseFile, PICKFILE_RESULT_CODE);
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case PICKFILE_RESULT_CODE:
+                if (resultCode == -1) {
+                    Uri fileUri = data.getData();
+                    String filePath = fileUri.getPath();
+                    TextView tvItemPath = this.findViewById(R.id.tv_file_path);
+                    tvItemPath.setText(filePath);
+                }
+
+                break;
+        }
     }
 
     @Override
