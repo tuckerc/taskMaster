@@ -28,10 +28,15 @@
     <string name="save_user_team">Save User Team</string>
     <string name="current_team">Current Team</string>
     <string name="current_state">Current State</string>
+    <string name="item_choose_file">Choose File</string>
     <string-array name="task_states_array">
         <item>New</item>
         <item>In Progress</item>
         <item>Review</item>
         <item>Complete</item>
     </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="permission_read_external_storage">Task Master requests permission to access your files</string>
 </resources>

@@ -10,7 +10,7 @@
         android:id="@+id/taskBodyLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:labelFor="@id/newTaskBodyPT"
         android:text="@string/task_body"
         android:textSize="18sp"
@@ -74,23 +74,33 @@
         android:id="@+id/newTaskSubmit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="@string/create_new_task"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newTaskBodyPT" />
+        app:layout_constraintTop_toBottomOf="@+id/new_task_file_picker_fragment" />
 
     <TextView
         android:id="@+id/teamsSpinnerLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:labelFor="@id/teams_spinner"
         android:text="@string/team_name"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newTaskNamePT" />
+
+    <fragment
+        android:id="@+id/new_task_file_picker_fragment"
+        android:name="com.chaseatucker.taskmaster.FilePickerFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newTaskBodyPT" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

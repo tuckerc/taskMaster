@@ -34,6 +34,9 @@ dependencies {
     // room dependencies
     def room_version = "2.2.3"
 
+    // easy permissions
+    implementation 'pub.devrel:easypermissions:0.2.0'
+
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
 
