@@ -88,74 +88,42 @@ public class MainActivity extends AppCompatActivity {
         Button logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(logout);
 
-        // update user tasks label text
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String username = p.getString("username", "user") + "'s Tasks";
-        TextView userLabel = findViewById(R.id.userTasksLabel);
-        userLabel.setText(username);
-
         AWSMobileClient.getInstance().initialize(getApplicationContext(), new Callback<UserStateDetails>() {
 
                     @Override
                     public void onResult(UserStateDetails userStateDetails) {
-                        Log.i(TAG + " INIT", "onResult: " + userStateDetails.getUserState());
-                        if(userStateDetails.getUserState().equals(UserState.SIGNED_OUT)) {
+                        Log.i(TAG, "INIT onResult: " + userStateDetails.getUserState());
+                        UserState userState = userStateDetails.getUserState();
+                        if(userState.equals(UserState.SIGNED_OUT)) {
                             userSignIn();
                         }
-                        if(userStateDetails.getUserState().equals(UserState.SIGNED_IN)) {
+                        if(userState.equals(UserState.SIGNED_IN)) {
                             try {
-//                                setTitle(AWSMobileClient.getInstance().getUserAttributes().get("given_name"));
-                                Map<String, String> userAttributes = AWSMobileClient.getInstance().getUserAttributes();
-                                givenName = userAttributes.get("given_name");
-
-                                for(String key : AWSMobileClient.getInstance().getUserAttributes().keySet()) {
-                                    Log.i(TAG, "userDetailsKey: " + key);
-                                }
+                                givenName = AWSMobileClient.getInstance().getUserAttributes().get("given_name");
                             } catch (Exception e) {
                                 Log.i(TAG, "error getting userAttributes \n" + e);
                             }
+                            Handler h = new Handler(Looper.getMainLooper()) {
+                                @Override
+                                public void handleMessage(Message inputMessage) {
+                                    setTitle(givenName + "'s Tasks");
+                                }
+                            };
+                            h.obtainMessage().sendToTarget();
                         }
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        Log.e(TAG + " INIT", "Initialization error.", e);
+                        Log.e(TAG, "INIT Initialization error.", e);
                     }
                 }
         );
-
-
-
-        // update action bar with [user name]'s Tasks
-//        Handler h = new Handler(Looper.getMainLooper()) {
-//            @Override
-//            public void handleMessage(Message inputMessage) {
-//                try {
-//                    Map<String, String> userAttributes = AWSMobileClient.getInstance().getUserAttributes();
-//                    for(String key : userAttributes.keySet()) {
-//                        Log.i(TAG, "userAttributes key: " + key);
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        };
-//        h.obtainMessage().sendToTarget();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        // update user tasks label text
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String username = p.getString("username", "user") + "'s Tasks";
-        TextView userLabel = findViewById(R.id.userTasksLabel);
-        userLabel.setText(username);
-
-
-        setTitle(AWSMobileClient.getInstance().getUsername());
-//        setTitle(givenName + "'s Tasks");
     }
 
     private void userSignIn() {

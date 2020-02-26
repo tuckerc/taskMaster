@@ -8,3 +8,5 @@ Android app used to manage tasks for teams. This includes adding, assigning, tra
   * ![](./screenshots/task_detail_02232020.png)
 * 2/23/2020: Added teams, added ability to update and delete tasks, added ability for user to change team.
   * ![](./screenshots/user_team_02232020.png)
+* 2/25/2020: Added authentication
+  * ![](./screenshots/login_02262020.png)
