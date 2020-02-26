@@ -45,21 +45,6 @@ public class Settings extends AppCompatActivity implements
     HashMap<String, String> teamIDsMap;
     String selectedTeamID = "";
 
-    // Create an anonymous implementation of OnClickListener
-    private View.OnClickListener updateUsernameListener = v -> {
-        // grab the username field
-        EditText usernameField = findViewById(R.id.usernameInput);
-        // get the text from username field
-        String username = usernameField.getText().toString();
-        // save the username to SharedPreferences
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor = p.edit();
-        editor.putString("username", username);
-        editor.apply();
-        // go back to main activity
-        finish();
-    };
-
     // OnClickListener for Save User Team Button
     private View.OnClickListener updateUserTeamListener = v -> {
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -73,9 +58,6 @@ public class Settings extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-
-        Button saveUsernameButton = findViewById(R.id.usernameSaveButton);
-        saveUsernameButton.setOnClickListener(updateUsernameListener);
 
         Button saveUserTeamButton = findViewById(R.id.updateUserTeamButton);
         saveUserTeamButton.setOnClickListener(updateUserTeamListener);
