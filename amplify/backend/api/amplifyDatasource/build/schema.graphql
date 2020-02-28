@@ -4,6 +4,7 @@ type Task {
   body: String
   state: String
   team: Team
+  files(filter: ModelFileFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelFileConnection
   _version: Int!
   _deleted: Boolean
   _lastChangedAt: AWSTimestamp!
@@ -13,6 +14,15 @@ type Team {
   id: ID!
   name: String
   tasks(filter: ModelTaskFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelTaskConnection
+  _version: Int!
+  _deleted: Boolean
+  _lastChangedAt: AWSTimestamp!
+}
+
+type File {
+  id: ID!
+  name: String
+  task: Task
   _version: Int!
   _deleted: Boolean
   _lastChangedAt: AWSTimestamp!
@@ -119,6 +129,9 @@ type Query {
   syncTeams(filter: ModelTeamFilterInput, limit: Int, nextToken: String, lastSync: AWSTimestamp): ModelTeamConnection
   getTeam(id: ID!): Team
   listTeams(filter: ModelTeamFilterInput, limit: Int, nextToken: String): ModelTeamConnection
+  syncFiles(filter: ModelFileFilterInput, limit: Int, nextToken: String, lastSync: AWSTimestamp): ModelFileConnection
+  getFile(id: ID!): File
+  listFiles(filter: ModelFileFilterInput, limit: Int, nextToken: String): ModelFileConnection
 }
 
 input CreateTaskInput {
@@ -151,6 +164,9 @@ type Mutation {
   createTeam(input: CreateTeamInput!, condition: ModelTeamConditionInput): Team
   updateTeam(input: UpdateTeamInput!, condition: ModelTeamConditionInput): Team
   deleteTeam(input: DeleteTeamInput!, condition: ModelTeamConditionInput): Team
+  createFile(input: CreateFileInput!, condition: ModelFileConditionInput): File
+  updateFile(input: UpdateFileInput!, condition: ModelFileConditionInput): File
+  deleteFile(input: DeleteFileInput!, condition: ModelFileConditionInput): File
 }
 
 input ModelTaskConditionInput {
@@ -182,6 +198,9 @@ type Subscription {
   onCreateTeam: Team @aws_subscribe(mutations: ["createTeam"])
   onUpdateTeam: Team @aws_subscribe(mutations: ["updateTeam"])
   onDeleteTeam: Team @aws_subscribe(mutations: ["deleteTeam"])
+  onCreateFile: File @aws_subscribe(mutations: ["createFile"])
+  onUpdateFile: File @aws_subscribe(mutations: ["updateFile"])
+  onDeleteFile: File @aws_subscribe(mutations: ["deleteFile"])
 }
 
 input TaskInput {
@@ -232,4 +251,55 @@ input ModelTeamConditionInput {
   and: [ModelTeamConditionInput]
   or: [ModelTeamConditionInput]
   not: ModelTeamConditionInput
+}
+
+input TeamInput {
+  id: ID!
+  name: String
+  tasks: [TaskInput]
+  _version: Int!
+  _deleted: Boolean
+  _lastChangedAt: AWSTimestamp!
+}
+
+type ModelFileConnection {
+  items: [File]
+  nextToken: String
+  startedAt: AWSTimestamp
+}
+
+input ModelFileFilterInput {
+  id: ModelIDInput
+  name: ModelStringInput
+  and: [ModelFileFilterInput]
+  or: [ModelFileFilterInput]
+  not: ModelFileFilterInput
+}
+
+input CreateFileInput {
+  id: ID
+  name: String
+  task: TaskInput
+  _version: Int
+  fileTaskId: ID
+}
+
+input UpdateFileInput {
+  id: ID!
+  name: String
+  task: TaskInput
+  _version: Int
+  fileTaskId: ID
+}
+
+input DeleteFileInput {
+  id: ID
+  _version: Int
+}
+
+input ModelFileConditionInput {
+  name: ModelStringInput
+  and: [ModelFileConditionInput]
+  or: [ModelFileConditionInput]
+  not: ModelFileConditionInput
 }

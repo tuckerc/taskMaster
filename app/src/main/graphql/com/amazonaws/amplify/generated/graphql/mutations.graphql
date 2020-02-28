@@ -19,6 +19,17 @@ mutation CreateTask(
       _deleted
       _lastChangedAt
     }
+    files {
+      items {
+        id
+        name
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
     _version
     _deleted
     _lastChangedAt
@@ -44,6 +55,17 @@ mutation UpdateTask(
       _deleted
       _lastChangedAt
     }
+    files {
+      items {
+        id
+        name
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
     _version
     _deleted
     _lastChangedAt
@@ -68,6 +90,17 @@ mutation DeleteTask(
       _version
       _deleted
       _lastChangedAt
+    }
+    files {
+      items {
+        id
+        name
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
     }
     _version
     _deleted
@@ -143,6 +176,102 @@ mutation DeleteTeam(
       }
       nextToken
       startedAt
+    }
+    _version
+    _deleted
+    _lastChangedAt
+  }
+}
+mutation CreateFile(
+  $input: CreateFileInput!
+  $condition: ModelFileConditionInput
+) {
+  createFile(input: $input, condition: $condition) {
+    id
+    name
+    task {
+      id
+      title
+      body
+      state
+      team {
+        id
+        name
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      files {
+        nextToken
+        startedAt
+      }
+      _version
+      _deleted
+      _lastChangedAt
+    }
+    _version
+    _deleted
+    _lastChangedAt
+  }
+}
+mutation UpdateFile(
+  $input: UpdateFileInput!
+  $condition: ModelFileConditionInput
+) {
+  updateFile(input: $input, condition: $condition) {
+    id
+    name
+    task {
+      id
+      title
+      body
+      state
+      team {
+        id
+        name
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      files {
+        nextToken
+        startedAt
+      }
+      _version
+      _deleted
+      _lastChangedAt
+    }
+    _version
+    _deleted
+    _lastChangedAt
+  }
+}
+mutation DeleteFile(
+  $input: DeleteFileInput!
+  $condition: ModelFileConditionInput
+) {
+  deleteFile(input: $input, condition: $condition) {
+    id
+    name
+    task {
+      id
+      title
+      body
+      state
+      team {
+        id
+        name
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      files {
+        nextToken
+        startedAt
+      }
+      _version
+      _deleted
+      _lastChangedAt
     }
     _version
     _deleted

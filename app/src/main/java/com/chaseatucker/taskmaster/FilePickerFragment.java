@@ -30,7 +30,7 @@ public class FilePickerFragment extends Fragment implements EasyPermissions.Perm
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    public static final int PICKFILE_RESULT_CODE = 1;
+    public static final int PICKFILE_REQUEST_CODE = 311;
     private static final int EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 1;
 
     private Button btnChooseFile;
