@@ -18,11 +18,16 @@
 		}
 	},
 	"auth": {
-		"taskmaster74b9308e": {
+		"taskmasterd40753fd": {
 			"service": "Cognito",
 			"providerPlugin": "awscloudformation",
-			"dependsOn": [],
-			"customAuth": false
+			"dependsOn": []
+		}
+	},
+	"storage": {
+		"taskmasterstorage": {
+			"service": "S3",
+			"providerPlugin": "awscloudformation"
 		}
 	}
 }

@@ -1,11 +1,14 @@
 package com.chaseatucker.taskmaster;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,24 +20,34 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.amazonaws.amplify.generated.graphql.CreateFileMutation;
 import com.amazonaws.amplify.generated.graphql.CreateTaskMutation;
 import com.amazonaws.amplify.generated.graphql.ListTeamsQuery;
+import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import type.CreateFileInput;
 import type.CreateTaskInput;
 
-import static com.chaseatucker.taskmaster.FilePickerFragment.PICKFILE_RESULT_CODE;
+import static com.chaseatucker.taskmaster.FilePickerFragment.PICKFILE_REQUEST_CODE;
 
 public class AddATask extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
@@ -46,10 +59,15 @@ public class AddATask extends AppCompatActivity implements
     ArrayAdapter<String> adapter;
     HashMap<String, String> teamIDsMap;
     String selectedTeamID = "";
+    Uri fileUri;
+    String fileName;
 
     // Create an anonymous implementation of OnClickListener
     private View.OnClickListener newTaskCreateListener = new View.OnClickListener() {
         public void onClick(View v) {
+            // upload file to S3
+            uploadWithTransferUtility(fileUri);
+
             // grab new task title and body
             EditText taskName = findViewById(R.id.newTaskNamePT);
             String taskNameStr = taskName.getText().toString();
@@ -63,10 +81,33 @@ public class AddATask extends AppCompatActivity implements
                     taskTeamId(selectedTeamID).
                     build();
 
+            // create the new task
             mAWSAppSyncClient.mutate(CreateTaskMutation.builder().input(newTask).build()).enqueue(
                     new GraphQLCall.Callback<CreateTaskMutation.Data>() {
                         @Override
                         public void onResponse(@Nonnull Response<CreateTaskMutation.Data> response) {
+
+                            CreateFileInput createFileInput = CreateFileInput.builder().
+                                    name(fileName).
+                                    fileTaskId(response.data().createTask().id()).
+                                    build();
+
+
+                            // create the new file in DynamoDB
+                            mAWSAppSyncClient.mutate(CreateFileMutation.builder().input(createFileInput).build()).enqueue(
+                                    new GraphQLCall.Callback<CreateFileMutation.Data>() {
+                                        @Override
+                                        public void onResponse(@Nonnull Response<CreateFileMutation.Data> response) {
+                                            Log.i(TAG, "created file id: " + response.data().createFile().id());
+                                        }
+
+                                        @Override
+                                        public void onFailure(@Nonnull ApolloException e) {
+                                            Log.i(TAG, "error creating file");
+                                        }
+                                    }
+                            );
+
                             // go back to previous activity
                             finish();
                         }
@@ -113,27 +154,49 @@ public class AddATask extends AppCompatActivity implements
         Button btnChooseFile = this.findViewById(R.id.btn_choose_file);
 
         btnChooseFile.setOnClickListener(v -> {
-            Log.i(TAG, "Choose File Button clicked");
-            Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
-            chooseFile.setType("*/*");
-            chooseFile = Intent.createChooser(chooseFile, "Choose a file");
-            startActivityForResult(chooseFile, PICKFILE_RESULT_CODE);
+            Intent i = new Intent(
+                    Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(i, PICKFILE_REQUEST_CODE);
         });
+
+        getApplicationContext().startService(new Intent(getApplicationContext(), TransferService.class));
     }
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case PICKFILE_RESULT_CODE:
-                if (resultCode == -1) {
-                    Uri fileUri = data.getData();
-                    String filePath = fileUri.getPath();
-                    TextView tvItemPath = this.findViewById(R.id.tv_file_path);
-                    tvItemPath.setText(filePath);
-                }
-
-                break;
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PICKFILE_REQUEST_CODE && resultCode == RESULT_OK && null != data) {
+            fileUri = data.getData();
+            Log.i(TAG, "fileUri: " + fileUri);
+            fileName = getFileName(fileUri);
+            Log.i(TAG, "fileName: " + fileName);
+            TextView tvItemPath = this.findViewById(R.id.tv_file_path);
+            tvItemPath.setText(fileName);
         }
+    }
+
+    public String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -178,5 +241,63 @@ public class AddATask extends AppCompatActivity implements
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    public void uploadWithTransferUtility(Uri uri) {
+
+        Log.i(TAG, "file upload started");
+
+        String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+        Cursor cursor = getContentResolver().query(uri,
+                filePathColumn, null, null, null);
+        cursor.moveToFirst();
+
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        String filePath = cursor.getString(columnIndex);
+        cursor.close();
+
+        Log.i(TAG, "filePath: " + filePath);
+
+        TransferUtility transferUtility =
+                TransferUtility.builder()
+                        .context(getApplicationContext())
+                        .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
+                        .s3Client(new AmazonS3Client(AWSMobileClient.getInstance()))
+                        .build();
+
+        TransferObserver uploadObserver =
+                transferUtility.upload(
+                        fileName,
+                        new File(filePath));
+
+        // Attach a listener to the observer to get state update and progress notifications
+        uploadObserver.setTransferListener(new TransferListener() {
+
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                if (TransferState.COMPLETED == state) {
+                    // Handle a completed upload.
+                }
+            }
+
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
+                int percentDone = (int)percentDonef;
+
+                Log.d(TAG, "ID:" + id + " bytesCurrent: " + bytesCurrent
+                        + " bytesTotal: " + bytesTotal + " " + percentDone + "%");
+            }
+
+            @Override
+            public void onError(int id, Exception e) {
+                Log.e(TAG, "error uploading file: " + e);
+            }
+
+        });
+
+        Log.d(TAG, "Bytes Transferred: " + uploadObserver.getBytesTransferred());
+        Log.d(TAG, "Bytes Total: " + uploadObserver.getBytesTotal());
     }
 }

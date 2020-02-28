@@ -17,6 +17,7 @@ import com.amazonaws.mobile.client.SignInUIOptions;
 import com.amazonaws.mobile.client.SignOutOptions;
 import com.amazonaws.mobile.client.UserState;
 import com.amazonaws.mobile.client.UserStateDetails;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(i);
     };
 
-    // OnClickListener to go to all tasks
+    // OnClickListener to logout
     private View.OnClickListener logout = v -> {
         AWSMobileClient.getInstance().signOut(SignOutOptions.builder().signOutGlobally(true).build(), new Callback<Void>() {
             @Override
@@ -91,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             };
                             h.obtainMessage().sendToTarget();
+
+                            getApplicationContext().startService(new Intent(getApplicationContext(), TransferService.class));
                         }
                     }
 

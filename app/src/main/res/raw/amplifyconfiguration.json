@@ -13,5 +13,14 @@
                 }
             }
         }
+    },
+    "storage": {
+        "plugins": {
+            "awsS3StoragePlugin": {
+                "bucket": "taskmaster122339-amplify",
+                "region": "us-west-2",
+                "defaultAccessLevel": "guest"
+            }
+        }
     }
 }

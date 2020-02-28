@@ -16,6 +16,17 @@ subscription OnCreateTask {
       _deleted
       _lastChangedAt
     }
+    files {
+      items {
+        id
+        name
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
     _version
     _deleted
     _lastChangedAt
@@ -38,6 +49,17 @@ subscription OnUpdateTask {
       _deleted
       _lastChangedAt
     }
+    files {
+      items {
+        id
+        name
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
     _version
     _deleted
     _lastChangedAt
@@ -59,6 +81,17 @@ subscription OnDeleteTask {
       _version
       _deleted
       _lastChangedAt
+    }
+    files {
+      items {
+        id
+        name
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
     }
     _version
     _deleted
@@ -125,6 +158,93 @@ subscription OnDeleteTeam {
       }
       nextToken
       startedAt
+    }
+    _version
+    _deleted
+    _lastChangedAt
+  }
+}
+subscription OnCreateFile {
+  onCreateFile {
+    id
+    name
+    task {
+      id
+      title
+      body
+      state
+      team {
+        id
+        name
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      files {
+        nextToken
+        startedAt
+      }
+      _version
+      _deleted
+      _lastChangedAt
+    }
+    _version
+    _deleted
+    _lastChangedAt
+  }
+}
+subscription OnUpdateFile {
+  onUpdateFile {
+    id
+    name
+    task {
+      id
+      title
+      body
+      state
+      team {
+        id
+        name
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      files {
+        nextToken
+        startedAt
+      }
+      _version
+      _deleted
+      _lastChangedAt
+    }
+    _version
+    _deleted
+    _lastChangedAt
+  }
+}
+subscription OnDeleteFile {
+  onDeleteFile {
+    id
+    name
+    task {
+      id
+      title
+      body
+      state
+      team {
+        id
+        name
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      files {
+        nextToken
+        startedAt
+      }
+      _version
+      _deleted
+      _lastChangedAt
     }
     _version
     _deleted

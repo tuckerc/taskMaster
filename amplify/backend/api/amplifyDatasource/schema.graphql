@@ -4,10 +4,17 @@ type Task @model {
   body: String
   state: String
   team: Team @connection(name: "teamToTasks")
+  files: [File] @connection(name: "taskToFiles")
 }
 
 type Team @model {
   id: ID!
   name: String
   tasks: [Task] @connection(name: "teamToTasks")
+}
+
+type File @model {
+  id: ID!
+  name: String
+  task: Task @connection(name: "taskToFiles")
 }
