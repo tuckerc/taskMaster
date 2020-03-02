@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.amazonaws.amplify.generated.graphql.ListTasksQuery;
+import com.amazonaws.amplify.generated.graphql.OnCreateTaskSubscription;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.AppSyncSubscriptionCall;
@@ -98,6 +100,25 @@ public class TaskFragment extends Fragment {
                 .context(view.getContext().getApplicationContext())
                 .awsConfiguration(new AWSConfiguration(view.getContext().getApplicationContext()))
                 .build();
+
+        OnCreateTaskSubscription subscription = OnCreateTaskSubscription.builder().build();
+        AppSyncSubscriptionCall<OnCreateTaskSubscription.Data> subscriptionWatcher = mAWSAppSyncClient.subscribe(subscription);
+        subscriptionWatcher.execute(new AppSyncSubscriptionCall.Callback<OnCreateTaskSubscription.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<OnCreateTaskSubscription.Data> response) {
+                Log.i(TAG, ".subscription: " + response.data().toString());
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e(TAG, ".subscription error: " + e.toString());
+            }
+
+            @Override
+            public void onCompleted() {
+                Log.i(TAG, ".subscription: Subscription completed");
+            }
+        });
 
         return view;
     }
