@@ -52,6 +52,7 @@ import javax.annotation.Nonnull;
 
 import type.CreateFileInput;
 import type.CreateTaskInput;
+import type.TaskInput;
 
 import static com.chaseatucker.taskmaster.FilePickerFragment.PICKFILE_REQUEST_CODE;
 
@@ -68,19 +69,19 @@ public class AddATask extends AppCompatActivity implements
     Uri fileUri;
     String fileName;
     String addedTaskID;
+    String taskNameStr;
+    String taskBodyStr;
     String uuid;
 
     // Create an anonymous implementation of OnClickListener
     private View.OnClickListener newTaskCreateListener = new View.OnClickListener() {
         public void onClick(View v) {
-            // upload file to S3
-            uploadWithTransferUtility(fileUri);
 
             // grab new task title and body
             EditText taskName = findViewById(R.id.newTaskNamePT);
-            String taskNameStr = taskName.getText().toString();
+            taskNameStr = taskName.getText().toString();
             EditText taskBody = findViewById(R.id.newTaskBodyPT);
-            String taskBodyStr = taskBody.getText().toString();
+            taskBodyStr = taskBody.getText().toString();
 
             CreateTaskInput newTask = CreateTaskInput.builder().
                     title(taskNameStr).
@@ -97,6 +98,33 @@ public class AddATask extends AppCompatActivity implements
                             // store the added task id
                             addedTaskID = response.data().createTask().id();
 
+                            // upload file to S3
+                            if(fileUri != null) {
+                                uploadWithTransferUtility(fileUri);
+
+                                CreateFileInput createFileInput = CreateFileInput.builder().
+                                        name(uuid).
+                                        fileTaskId(addedTaskID).
+                                        build();
+
+
+                                // create the new file in DynamoDB
+                                mAWSAppSyncClient.mutate(CreateFileMutation.builder().input(createFileInput).build()).enqueue(
+                                        new GraphQLCall.Callback<CreateFileMutation.Data>() {
+                                            @Override
+                                            public void onResponse(@Nonnull Response<CreateFileMutation.Data> response) {
+                                                Log.i(TAG, "created file id: " + response.data().createFile().id());
+                                                Log.i(TAG, "created file task id: " + response.data().createFile().task().id());
+                                            }
+
+                                            @Override
+                                            public void onFailure(@Nonnull ApolloException e) {
+                                                Log.i(TAG, "error creating file");
+                                            }
+                                        }
+                                );
+                            }
+
                             // go back to previous activity
                             finish();
                         }
@@ -104,27 +132,6 @@ public class AddATask extends AppCompatActivity implements
                         @Override
                         public void onFailure(@Nonnull ApolloException e) {
                             Log.i(TAG, "failed to add task: " + e);
-                        }
-                    }
-            );
-
-            CreateFileInput createFileInput = CreateFileInput.builder().
-                    name(uuid).
-                    fileTaskId(addedTaskID).
-                    build();
-
-
-            // create the new file in DynamoDB
-            mAWSAppSyncClient.mutate(CreateFileMutation.builder().input(createFileInput).build()).enqueue(
-                    new GraphQLCall.Callback<CreateFileMutation.Data>() {
-                        @Override
-                        public void onResponse(@Nonnull Response<CreateFileMutation.Data> response) {
-                            Log.i(TAG, "created file id: " + response.data().createFile().id());
-                        }
-
-                        @Override
-                        public void onFailure(@Nonnull ApolloException e) {
-                            Log.i(TAG, "error creating file");
                         }
                     }
             );
@@ -180,7 +187,7 @@ public class AddATask extends AppCompatActivity implements
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICKFILE_REQUEST_CODE && resultCode == RESULT_OK && null != data) {
+        if(requestCode == PICKFILE_REQUEST_CODE && resultCode == -1 && null != data) {
             fileUri = data.getData();
             Log.i(TAG, "fileUri: " + fileUri);
             fileName = getFileName(fileUri);
