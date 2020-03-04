@@ -12,3 +12,5 @@ Android app used to manage tasks for teams. This includes adding, assigning, tra
   * ![](./screenshots/login_02262020.png)
 * 2/27/2020: Cannot seem to get S3 working
   * ![](./screenshots/403_access_denied.png)
+* 3/4/2020: Able to upload and download images from S3
+  * ![](./screenshots/s3_03042020.png)

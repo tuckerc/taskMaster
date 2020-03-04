@@ -71,7 +71,7 @@ public class AddATask extends AppCompatActivity implements
     String addedTaskID;
     String taskNameStr;
     String taskBodyStr;
-    String uuid;
+    String newestFileID;
 
     // Create an anonymous implementation of OnClickListener
     private View.OnClickListener newTaskCreateListener = new View.OnClickListener() {
@@ -100,10 +100,8 @@ public class AddATask extends AppCompatActivity implements
 
                             // upload file to S3
                             if(fileUri != null) {
-                                uploadWithTransferUtility(fileUri);
-
                                 CreateFileInput createFileInput = CreateFileInput.builder().
-                                        name(uuid).
+                                        name(fileName).
                                         fileTaskId(addedTaskID).
                                         build();
 
@@ -115,6 +113,9 @@ public class AddATask extends AppCompatActivity implements
                                             public void onResponse(@Nonnull Response<CreateFileMutation.Data> response) {
                                                 Log.i(TAG, "created file id: " + response.data().createFile().id());
                                                 Log.i(TAG, "created file task id: " + response.data().createFile().task().id());
+
+                                                newestFileID = response.data().createFile().id();
+                                                uploadWithTransferUtility(fileUri);
                                             }
 
                                             @Override
@@ -263,66 +264,6 @@ public class AddATask extends AppCompatActivity implements
 
     }
 
-    public void uploadWithTransferUtility() {
-
-        TransferUtility transferUtility =
-                TransferUtility.builder()
-                        .context(getApplicationContext())
-                        .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
-                        .s3Client(new AmazonS3Client(AWSMobileClient.getInstance()))
-                        .build();
-
-        File file = new File(getApplicationContext().getFilesDir(), "sample.txt");
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            writer.append("Howdy World!");
-            writer.close();
-        }
-        catch(Exception e) {
-            Log.e(TAG, e.getMessage());
-        }
-
-        TransferObserver uploadObserver =
-                transferUtility.upload(
-                        "public/sample.txt",
-                        new File(getApplicationContext().getFilesDir(),"sample.txt"));
-
-        // Attach a listener to the observer to get state update and progress notifications
-        uploadObserver.setTransferListener(new TransferListener() {
-
-            @Override
-            public void onStateChanged(int id, TransferState state) {
-                if (TransferState.COMPLETED == state) {
-                    // Handle a completed upload.
-                }
-            }
-
-            @Override
-            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
-                int percentDone = (int)percentDonef;
-
-                Log.d(TAG, "ID:" + id + " bytesCurrent: " + bytesCurrent
-                        + " bytesTotal: " + bytesTotal + " " + percentDone + "%");
-            }
-
-            @Override
-            public void onError(int id, Exception ex) {
-                // Handle errors
-            }
-
-        });
-
-        // If you prefer to poll for the data, instead of attaching a
-        // listener, check for the state and progress in the observer.
-        if (TransferState.COMPLETED == uploadObserver.getState()) {
-            // Handle a completed upload.
-        }
-
-        Log.d(TAG, "Bytes Transferred: " + uploadObserver.getBytesTransferred());
-        Log.d(TAG, "Bytes Total: " + uploadObserver.getBytesTotal());
-    }
-
     public void uploadWithTransferUtility(Uri uri) {
 
         TransferUtility transferUtility =
@@ -342,10 +283,9 @@ public class AddATask extends AppCompatActivity implements
         String filePath = cursor.getString(columnIndex);
         cursor.close();
 
-        uuid = UUID.randomUUID().toString();
         TransferObserver uploadObserver =
                 transferUtility.upload(
-                        "public/" + uuid,
+                        "public/" + fileName + newestFileID,
                         new File(filePath));
 
         // Attach a listener to the observer to get state update and progress notifications

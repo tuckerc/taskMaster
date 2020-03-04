@@ -1,11 +1,22 @@
 package com.chaseatucker.taskmaster;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
+import android.app.DownloadManager;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.amazonaws.amplify.generated.graphql.ListFilesQuery;
@@ -48,11 +59,18 @@ public class MyFileRecyclerViewAdapter extends RecyclerView.Adapter<MyFileRecycl
         holder.mItem = mValues.get(position);
         holder.mFileNameView.setText(mValues.get(position).name());
 
-        holder.mView.setOnClickListener(v -> {
-            if (null != mListener) {
-                // download the file
-                downloadWithTransferUtility(v);
-            }
+        holder.mFileOpenBtn.setOnClickListener(v -> {
+            Log.i(TAG, "file clicked");
+            // download the file
+            Handler h = new Handler(Looper.getMainLooper()) {
+                @Override
+                public void handleMessage(Message inputMessage) {
+                    downloadWithTransferUtility(v, holder.mItem.name(), holder.mItem.id());
+                }
+            };
+            h.obtainMessage().sendToTarget();
+
+            holder.mView.getContext().startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
         });
     }
 
@@ -64,12 +82,14 @@ public class MyFileRecyclerViewAdapter extends RecyclerView.Adapter<MyFileRecycl
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mFileNameView;
+        public final Button mFileOpenBtn;
         public ListFilesQuery.Item mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mFileNameView = view.findViewById(R.id.file_fragment_file_name_tv);
+            mFileOpenBtn = view.findViewById(R.id.file_fragment_open_file_btn);
         }
 
         @Override
@@ -78,7 +98,7 @@ public class MyFileRecyclerViewAdapter extends RecyclerView.Adapter<MyFileRecycl
         }
     }
 
-    private void downloadWithTransferUtility(View view) {
+    private void downloadWithTransferUtility(View view, String fileName, String fileID) {
 
         TransferUtility transferUtility =
                 TransferUtility.builder()
@@ -89,8 +109,8 @@ public class MyFileRecyclerViewAdapter extends RecyclerView.Adapter<MyFileRecycl
 
         TransferObserver downloadObserver =
                 transferUtility.download(
-                        "public/sample.txt",
-                        new File(view.getContext().getApplicationContext().getFilesDir(), "download.txt"));
+                        "public/" + fileName + fileID,
+                        new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName));
 
         // Attach a listener to the observer to get state update and progress notifications
         downloadObserver.setTransferListener(new TransferListener() {
@@ -112,7 +132,8 @@ public class MyFileRecyclerViewAdapter extends RecyclerView.Adapter<MyFileRecycl
 
             @Override
             public void onError(int id, Exception ex) {
-                Log.i(TAG, "error downloading file");
+
+                Log.i(TAG, "error downloading file: " + ex);
             }
 
         });
