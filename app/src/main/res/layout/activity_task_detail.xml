@@ -57,7 +57,7 @@
         app:layout_constraintEnd_toStartOf="@+id/delete_task_button"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/taskBodyTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/task_files_fragment" />
 
     <Button
         android:id="@+id/delete_task_button"
@@ -70,7 +70,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/update_task_button"
-        app:layout_constraintTop_toBottomOf="@+id/taskBodyTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/task_files_fragment" />
 
     <TextView
         android:id="@+id/taskTeamTextView"
@@ -84,5 +84,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/taskStateTextView" />
+
+    <fragment
+        android:id="@+id/task_files_fragment"
+        android:name="com.chaseatucker.taskmaster.FileFragment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/taskBodyTextView"
+        tools:layout="@layout/fragment_file_list" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

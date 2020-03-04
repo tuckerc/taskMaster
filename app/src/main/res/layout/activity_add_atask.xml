@@ -20,17 +20,19 @@
 
     <EditText
         android:id="@+id/newTaskNamePT"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:ems="10"
+        android:importantForAutofill="no"
         android:inputType="textPersonName"
         android:textAlignment="viewStart"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/taskNameLabel"
-        android:importantForAutofill="no" />
+        app:layout_constraintTop_toBottomOf="@+id/taskNameLabel" />
 
     <Spinner
         android:id="@+id/teams_spinner"
@@ -56,9 +58,11 @@
 
     <EditText
         android:id="@+id/newTaskBodyPT"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:ems="10"
         android:gravity="start|top"
         android:importantForAutofill="no"

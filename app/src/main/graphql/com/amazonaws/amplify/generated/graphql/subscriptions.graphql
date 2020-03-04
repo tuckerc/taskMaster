@@ -20,6 +20,7 @@ subscription OnCreateTask {
       items {
         id
         name
+        uuid
         _version
         _deleted
         _lastChangedAt
@@ -53,6 +54,7 @@ subscription OnUpdateTask {
       items {
         id
         name
+        uuid
         _version
         _deleted
         _lastChangedAt
@@ -86,6 +88,7 @@ subscription OnDeleteTask {
       items {
         id
         name
+        uuid
         _version
         _deleted
         _lastChangedAt
@@ -168,6 +171,7 @@ subscription OnCreateFile {
   onCreateFile {
     id
     name
+    uuid
     task {
       id
       title
@@ -197,6 +201,7 @@ subscription OnUpdateFile {
   onUpdateFile {
     id
     name
+    uuid
     task {
       id
       title
@@ -226,6 +231,7 @@ subscription OnDeleteFile {
   onDeleteFile {
     id
     name
+    uuid
     task {
       id
       title

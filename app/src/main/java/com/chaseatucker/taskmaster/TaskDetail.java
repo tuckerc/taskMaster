@@ -1,8 +1,8 @@
 package com.chaseatucker.taskmaster;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,15 +12,22 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.amazonaws.amplify.generated.graphql.DeleteTaskMutation;
 import com.amazonaws.amplify.generated.graphql.GetTaskQuery;
-import com.amazonaws.amplify.generated.graphql.ListTasksQuery;
+import com.amazonaws.amplify.generated.graphql.ListFilesQuery;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
 import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -32,11 +39,17 @@ public class TaskDetail extends AppCompatActivity {
     AWSAppSyncClient mAWSAppSyncClient;
     String taskID = "";
     int version;
+    List<GetTaskQuery.Item> files = new LinkedList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_detail);
+
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+        }
 
         mAWSAppSyncClient = AWSAppSyncClient.builder()
                 .context(getApplicationContext())
@@ -89,9 +102,41 @@ public class TaskDetail extends AppCompatActivity {
                                 taskID = response.data().getTask().id();
 
                                 version = response.data().getTask()._version();
+
+                                if(response.data().getTask().files().items() != null) {
+                                    files = response.data().getTask().files().items();
+                                }
                             }
                         };
                         h.obtainMessage().sendToTarget();
+
+                        mAWSAppSyncClient.query(ListFilesQuery.builder().build())
+                                .responseFetcher(AppSyncResponseFetchers.NETWORK_FIRST)
+                                .enqueue(new GraphQLCall.Callback<ListFilesQuery.Data>() {
+                                    @Override
+                                    public void onResponse(@Nonnull Response<ListFilesQuery.Data> response) {
+                                        Handler h = new Handler(Looper.getMainLooper()){
+                                            @Override
+                                            public void handleMessage(Message inputMessage) {
+                                                if(response.data().listFiles().items() != null) {
+                                                    for(ListFilesQuery.Item item : response.data().listFiles().items()) {
+                                                        if(item.task() != null) {
+                                                            if(item.task().id().equals(taskID)) {
+                                                                Log.i(TAG, "file name: " + item.name());
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        };
+                                        h.obtainMessage().sendToTarget();
+                                    }
+
+                                    @Override
+                                    public void onFailure(@Nonnull ApolloException e) {
+                                        Log.i(TAG, "failed to get files");
+                                    }
+                                });
 
                     }
 
@@ -100,7 +145,6 @@ public class TaskDetail extends AppCompatActivity {
                         Log.i(TAG, "task load failed: " + e);
                     }
                 });
-
     }
 
     // OnClickListener to go to update a task

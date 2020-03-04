@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
         Button logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(logout);
 
+        getApplicationContext().startService(new Intent(getApplicationContext(), TransferService.class));
+
         AWSMobileClient.getInstance().initialize(getApplicationContext(), new Callback<UserStateDetails>() {
 
                     @Override
@@ -92,8 +94,6 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             };
                             h.obtainMessage().sendToTarget();
-
-                            getApplicationContext().startService(new Intent(getApplicationContext(), TransferService.class));
                         }
                     }
 

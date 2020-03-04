@@ -1,6 +1,8 @@
 package com.chaseatucker.taskmaster;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,6 +21,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.amazonaws.amplify.generated.graphql.CreateFileMutation;
 import com.amazonaws.amplify.generated.graphql.CreateTaskMutation;
@@ -29,7 +33,6 @@ import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -37,15 +40,19 @@ import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Nonnull;
 
 import type.CreateFileInput;
 import type.CreateTaskInput;
+import type.TaskInput;
 
 import static com.chaseatucker.taskmaster.FilePickerFragment.PICKFILE_REQUEST_CODE;
 
@@ -62,18 +69,19 @@ public class AddATask extends AppCompatActivity implements
     Uri fileUri;
     String fileName;
     String addedTaskID;
+    String taskNameStr;
+    String taskBodyStr;
+    String newestFileID;
 
     // Create an anonymous implementation of OnClickListener
     private View.OnClickListener newTaskCreateListener = new View.OnClickListener() {
         public void onClick(View v) {
-            // upload file to S3
-            uploadWithTransferUtility(fileUri);
 
             // grab new task title and body
             EditText taskName = findViewById(R.id.newTaskNamePT);
-            String taskNameStr = taskName.getText().toString();
+            taskNameStr = taskName.getText().toString();
             EditText taskBody = findViewById(R.id.newTaskBodyPT);
-            String taskBodyStr = taskBody.getText().toString();
+            taskBodyStr = taskBody.getText().toString();
 
             CreateTaskInput newTask = CreateTaskInput.builder().
                     title(taskNameStr).
@@ -90,6 +98,34 @@ public class AddATask extends AppCompatActivity implements
                             // store the added task id
                             addedTaskID = response.data().createTask().id();
 
+                            // upload file to S3
+                            if(fileUri != null) {
+                                CreateFileInput createFileInput = CreateFileInput.builder().
+                                        name(fileName).
+                                        fileTaskId(addedTaskID).
+                                        build();
+
+
+                                // create the new file in DynamoDB
+                                mAWSAppSyncClient.mutate(CreateFileMutation.builder().input(createFileInput).build()).enqueue(
+                                        new GraphQLCall.Callback<CreateFileMutation.Data>() {
+                                            @Override
+                                            public void onResponse(@Nonnull Response<CreateFileMutation.Data> response) {
+                                                Log.i(TAG, "created file id: " + response.data().createFile().id());
+                                                Log.i(TAG, "created file task id: " + response.data().createFile().task().id());
+
+                                                newestFileID = response.data().createFile().id();
+                                                uploadWithTransferUtility(fileUri);
+                                            }
+
+                                            @Override
+                                            public void onFailure(@Nonnull ApolloException e) {
+                                                Log.i(TAG, "error creating file");
+                                            }
+                                        }
+                                );
+                            }
+
                             // go back to previous activity
                             finish();
                         }
@@ -97,26 +133,6 @@ public class AddATask extends AppCompatActivity implements
                         @Override
                         public void onFailure(@Nonnull ApolloException e) {
                             Log.i(TAG, "failed to add task: " + e);
-                        }
-                    }
-            );
-
-            CreateFileInput createFileInput = CreateFileInput.builder().
-                    name(fileName).
-                    build();
-
-
-            // create the new file in DynamoDB
-            mAWSAppSyncClient.mutate(CreateFileMutation.builder().input(createFileInput).build()).enqueue(
-                    new GraphQLCall.Callback<CreateFileMutation.Data>() {
-                        @Override
-                        public void onResponse(@Nonnull Response<CreateFileMutation.Data> response) {
-                            Log.i(TAG, "created file id: " + response.data().createFile().id());
-                        }
-
-                        @Override
-                        public void onFailure(@Nonnull ApolloException e) {
-                            Log.i(TAG, "error creating file");
                         }
                     }
             );
@@ -156,12 +172,15 @@ public class AddATask extends AppCompatActivity implements
         Button btnChooseFile = this.findViewById(R.id.btn_choose_file);
 
         btnChooseFile.setOnClickListener(v -> {
-            Intent i = new Intent(
-                    Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(i, PICKFILE_REQUEST_CODE);
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+            } else {
+                Intent i = new Intent(
+                        Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(i, PICKFILE_REQUEST_CODE);
+            }
         });
-
-        getApplicationContext().startService(new Intent(getApplicationContext(), TransferService.class));
     }
 
 
@@ -169,7 +188,7 @@ public class AddATask extends AppCompatActivity implements
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICKFILE_REQUEST_CODE && resultCode == RESULT_OK && null != data) {
+        if(requestCode == PICKFILE_REQUEST_CODE && resultCode == -1 && null != data) {
             fileUri = data.getData();
             Log.i(TAG, "fileUri: " + fileUri);
             fileName = getFileName(fileUri);
@@ -247,7 +266,12 @@ public class AddATask extends AppCompatActivity implements
 
     public void uploadWithTransferUtility(Uri uri) {
 
-        Log.i(TAG, "file upload started");
+        TransferUtility transferUtility =
+                TransferUtility.builder()
+                        .context(getApplicationContext())
+                        .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
+                        .s3Client(new AmazonS3Client(AWSMobileClient.getInstance()))
+                        .build();
 
         String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
@@ -259,18 +283,9 @@ public class AddATask extends AppCompatActivity implements
         String filePath = cursor.getString(columnIndex);
         cursor.close();
 
-        Log.i(TAG, "filePath: " + filePath);
-
-        TransferUtility transferUtility =
-                TransferUtility.builder()
-                        .context(getApplicationContext())
-                        .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
-                        .s3Client(new AmazonS3Client(AWSMobileClient.getInstance()))
-                        .build();
-
         TransferObserver uploadObserver =
                 transferUtility.upload(
-                        fileName,
+                        "public/" + fileName + newestFileID,
                         new File(filePath));
 
         // Attach a listener to the observer to get state update and progress notifications

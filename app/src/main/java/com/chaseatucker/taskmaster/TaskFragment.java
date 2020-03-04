@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.amazonaws.amplify.generated.graphql.ListTasksQuery;
+import com.amazonaws.amplify.generated.graphql.OnCreateTaskSubscription;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.AppSyncSubscriptionCall;
@@ -99,6 +101,8 @@ public class TaskFragment extends Fragment {
                 .awsConfiguration(new AWSConfiguration(view.getContext().getApplicationContext()))
                 .build();
 
+        OnCreateTaskSubscription subscription = OnCreateTaskSubscription.builder().build();
+
         return view;
     }
 
@@ -155,9 +159,6 @@ public class TaskFragment extends Fragment {
         super.onAttach(context);
         if (context instanceof OnListFragmentInteractionListener) {
             mListener = (OnListFragmentInteractionListener) context;
-        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnListFragmentInteractionListener");
         }
     }
 
