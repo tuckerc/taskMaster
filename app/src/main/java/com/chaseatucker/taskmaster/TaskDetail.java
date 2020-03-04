@@ -13,7 +13,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.amazonaws.amplify.generated.graphql.DeleteTaskMutation;
-import com.amazonaws.amplify.generated.graphql.GetFileQuery;
 import com.amazonaws.amplify.generated.graphql.GetTaskQuery;
 import com.amazonaws.amplify.generated.graphql.ListFilesQuery;
 import com.amazonaws.mobile.config.AWSConfiguration;
@@ -23,7 +22,6 @@ import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 

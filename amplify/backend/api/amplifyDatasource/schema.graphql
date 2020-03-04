@@ -16,5 +16,6 @@ type Team @model {
 type File @model {
   id: ID!
   name: String
+  uuid: String
   task: Task @connection(name: "taskToFiles")
 }

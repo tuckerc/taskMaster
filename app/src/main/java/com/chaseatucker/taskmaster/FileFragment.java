@@ -3,6 +3,12 @@ package com.chaseatucker.taskmaster;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -12,13 +18,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.amazonaws.amplify.generated.graphql.ListTasksQuery;
-import com.amazonaws.amplify.generated.graphql.OnCreateTaskSubscription;
+import com.amazonaws.amplify.generated.graphql.ListFilesQuery;
+import com.amazonaws.amplify.generated.graphql.OnCreateFileSubscription;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.AppSyncSubscriptionCall;
@@ -32,35 +33,37 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import type.ModelFileFilterInput;
+import type.ModelIDInput;
+
 /**
  * A fragment representing a list of Items.
  * <p/>
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class TaskFragment extends Fragment {
+public class FileFragment extends Fragment {
 
-    String TAG = "cat.taskFragment";
+    String TAG = "cat.FileFragment";
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
     private RecyclerView recyclerView;
     private AWSAppSyncClient mAWSAppSyncClient;
-    MyTaskRecyclerViewAdapter adapter;
-    List<ListTasksQuery.Item> taskList;
-    private AppSyncSubscriptionCall subscriptionWatcher;
+    MyFileRecyclerViewAdapter adapter;
+    List<ListFilesQuery.Item> fileList;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public TaskFragment() {
+    public FileFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static TaskFragment newInstance(int columnCount) {
-        TaskFragment fragment = new TaskFragment();
+    public static FileFragment newInstance(int columnCount) {
+        FileFragment fragment = new FileFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -71,9 +74,9 @@ public class TaskFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        taskList = new LinkedList<>();
+        fileList = new LinkedList<>();
 
-        adapter = new MyTaskRecyclerViewAdapter(taskList, null);
+        adapter = new MyFileRecyclerViewAdapter(fileList, null);
 
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
@@ -83,7 +86,7 @@ public class TaskFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_task_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_file_list, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -101,7 +104,24 @@ public class TaskFragment extends Fragment {
                 .awsConfiguration(new AWSConfiguration(view.getContext().getApplicationContext()))
                 .build();
 
-        OnCreateTaskSubscription subscription = OnCreateTaskSubscription.builder().build();
+        OnCreateFileSubscription fileSubscription = OnCreateFileSubscription.builder().build();
+        AppSyncSubscriptionCall<OnCreateFileSubscription.Data> subscriptionWatcher = mAWSAppSyncClient.subscribe(fileSubscription);
+        subscriptionWatcher.execute(new AppSyncSubscriptionCall.Callback<OnCreateFileSubscription.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<OnCreateFileSubscription.Data> response) {
+                Log.i(TAG, ".subscription: " + response.data().toString());
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.e(TAG, ".subscription error: " + e.toString());
+            }
+
+            @Override
+            public void onCompleted() {
+                Log.i(TAG, ".subscription: Subscription completed");
+            }
+        });
 
         return view;
     }
@@ -110,36 +130,34 @@ public class TaskFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        taskList.clear();
+        fileList.clear();
 
-        mAWSAppSyncClient.query(ListTasksQuery.builder().build())
+        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(recyclerView.getContext().getApplicationContext());
+        String currentTaskID = p.getString("currentTaskID", "");
+        Log.i(TAG, "currentTaskID: " + currentTaskID);
+        mAWSAppSyncClient.query(ListFilesQuery.builder().build())
                 .responseFetcher(AppSyncResponseFetchers.NETWORK_FIRST)
-                .enqueue(new GraphQLCall.Callback<ListTasksQuery.Data>() {
+                .enqueue(new GraphQLCall.Callback<ListFilesQuery.Data>() {
                     @Override
-                    public void onResponse(@Nonnull Response<ListTasksQuery.Data> response) {
+                    public void onResponse(@Nonnull Response<ListFilesQuery.Data> response) {
 
                         Handler h = new Handler(Looper.getMainLooper()){
                             @Override
                             public void handleMessage(Message inputMessage) {
-                                SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(recyclerView.getContext().getApplicationContext());
-                                String teamID = p.getString("userTeamID", "");
-                                if(response.data().listTasks().items() != null) {
-                                    if(teamID != "") {
-                                        for(ListTasksQuery.Item item : response.data().listTasks().items()) {
-                                            if(item._deleted() == null || !item._deleted()) {
-                                                if(item.team() != null && item.team().id().equals(teamID)) {
-                                                    taskList.add(item);
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        for(ListTasksQuery.Item item : response.data().listTasks().items()) {
-                                            if(item._deleted() == null || !item._deleted()) {
-                                                taskList.add(item);
-                                            }
+                                if(response.data().listFiles().items() != null) {
+                                    for(ListFilesQuery.Item item : response.data().listFiles().items()) {
+                                        if(item.task().id().equals(currentTaskID)) {
+                                            fileList.add(item);
                                         }
                                     }
+                                } else {
+                                    Log.i(TAG, "ListFilesQuery empty");
                                 }
+
+                                for(ListFilesQuery.Item item : fileList) {
+                                    Log.i(TAG, "file: " + item.name());
+                                }
+
                                 recyclerView.setAdapter(adapter);
                                 adapter.notifyDataSetChanged();
                             }
@@ -149,7 +167,7 @@ public class TaskFragment extends Fragment {
 
                     @Override
                     public void onFailure(@Nonnull ApolloException e) {
-
+                        Log.i(TAG, "failure in ListFilesQuery: " + e);
                     }
                 });
     }
@@ -180,6 +198,6 @@ public class TaskFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(ListTasksQuery.Item item);
+        void onListFragmentInteraction(ListFilesQuery.Item item);
     }
 }

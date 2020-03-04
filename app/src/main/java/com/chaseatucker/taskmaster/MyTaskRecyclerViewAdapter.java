@@ -3,6 +3,8 @@ package com.chaseatucker.taskmaster;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,13 +43,16 @@ public class MyTaskRecyclerViewAdapter extends RecyclerView.Adapter<MyTaskRecycl
         holder.mItem = mValues.get(position);
         holder.mTitleView.setText(mValues.get(position).title());
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(v.getContext(), TaskDetail.class);
-                i.putExtra("id", mValues.get(position).id());
-                v.getContext().startActivity(i);
-            }
+        holder.mView.setOnClickListener(v -> {
+            // store the current task in shared prefs
+            SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(v.getContext().getApplicationContext());
+            SharedPreferences.Editor editor = p.edit();
+            editor.putString("currentTaskID", mValues.get(position).id());
+            editor.apply();
+
+            Intent i = new Intent(v.getContext(), TaskDetail.class);
+            i.putExtra("id", mValues.get(position).id());
+            v.getContext().startActivity(i);
         });
     }
 
