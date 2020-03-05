@@ -56,7 +56,6 @@ query GetTask($id: ID!) {
       items {
         id
         name
-        uuid
         _version
         _deleted
         _lastChangedAt
@@ -184,7 +183,6 @@ query SyncFiles(
     items {
       id
       name
-      uuid
       task {
         id
         title
@@ -206,7 +204,6 @@ query GetFile($id: ID!) {
   getFile(id: $id) {
     id
     name
-    uuid
     task {
       id
       title
@@ -241,7 +238,6 @@ query ListFiles(
     items {
       id
       name
-      uuid
       task {
         id
         title
