@@ -23,7 +23,6 @@ mutation CreateTask(
       items {
         id
         name
-        uuid
         _version
         _deleted
         _lastChangedAt
@@ -60,7 +59,6 @@ mutation UpdateTask(
       items {
         id
         name
-        uuid
         _version
         _deleted
         _lastChangedAt
@@ -97,7 +95,6 @@ mutation DeleteTask(
       items {
         id
         name
-        uuid
         _version
         _deleted
         _lastChangedAt
@@ -192,7 +189,6 @@ mutation CreateFile(
   createFile(input: $input, condition: $condition) {
     id
     name
-    uuid
     task {
       id
       title
@@ -225,7 +221,6 @@ mutation UpdateFile(
   updateFile(input: $input, condition: $condition) {
     id
     name
-    uuid
     task {
       id
       title
@@ -258,7 +253,6 @@ mutation DeleteFile(
   deleteFile(input: $input, condition: $condition) {
     id
     name
-    uuid
     task {
       id
       title

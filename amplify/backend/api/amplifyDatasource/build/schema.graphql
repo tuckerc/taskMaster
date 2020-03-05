@@ -22,7 +22,6 @@ type Team {
 type File {
   id: ID!
   name: String
-  uuid: String
   task: Task
   _version: Int!
   _deleted: Boolean
@@ -272,7 +271,6 @@ type ModelFileConnection {
 input ModelFileFilterInput {
   id: ModelIDInput
   name: ModelStringInput
-  uuid: ModelStringInput
   and: [ModelFileFilterInput]
   or: [ModelFileFilterInput]
   not: ModelFileFilterInput
@@ -281,7 +279,6 @@ input ModelFileFilterInput {
 input CreateFileInput {
   id: ID
   name: String
-  uuid: String
   task: TaskInput
   _version: Int
   fileTaskId: ID
@@ -290,7 +287,6 @@ input CreateFileInput {
 input UpdateFileInput {
   id: ID!
   name: String
-  uuid: String
   task: TaskInput
   _version: Int
   fileTaskId: ID
@@ -303,7 +299,6 @@ input DeleteFileInput {
 
 input ModelFileConditionInput {
   name: ModelStringInput
-  uuid: ModelStringInput
   and: [ModelFileConditionInput]
   or: [ModelFileConditionInput]
   not: ModelFileConditionInput
