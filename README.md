@@ -16,3 +16,5 @@ Android app used to manage tasks for teams. This includes adding, assigning, tra
   * ![](./screenshots/s3_03042020.png)
 * 3/5/2020: Able to push test notifications from Firebase
   * ![](./screenshots/notifications_03052020.png)
+* 3/6/2020: Able to select Task Master as a share option for an image on device
+  * ![](./screenshots/intent_filter_03062020.png)

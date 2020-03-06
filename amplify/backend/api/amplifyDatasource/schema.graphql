@@ -8,23 +8,23 @@ type Task @model {
   files: [File] @connection(name: "taskToFiles")
 }
 
-type User @model {
-  id: ID!
-  sub: String
-  name: String
-  team: Team @connection(name: "teamToUsers")
-  tasks: [Task] @connection(name: "userToTasks")
-}
-
 type Team @model {
   id: ID!
   name: String
   tasks: [Task] @connection(name: "teamToTasks")
-  users: [User] @connection(name: "teamToUsers")
+  members: [User] @connection(name: "teamToUsers")
 }
 
 type File @model {
   id: ID!
   name: String
   task: Task @connection(name: "taskToFiles")
+}
+
+type User @model {
+  id: ID!
+  sub: String
+  name: String
+  tasks: [Task] @connection(name: "userToTasks")
+  team: Team @connection(name: "teamToUsers")
 }
