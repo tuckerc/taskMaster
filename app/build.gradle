@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.amazonaws.appsync'
 
 android {
     compileSdkVersion 29
@@ -28,9 +29,15 @@ android {
     }
 }
 
-apply plugin: 'com.amazonaws.appsync'
-
 dependencies {
+    // Overrides an auth dependency to ensure correct behavior
+    implementation 'com.google.android.gms:play-services-auth:17.0.0'
+
+    // Firebase
+    implementation 'com.google.firebase:firebase-core:17.2.3'
+    implementation 'com.google.firebase:firebase-messaging:20.1.2'
+    implementation 'com.google.firebase:firebase-analytics:17.2.3'
+
     // room dependencies
     def room_version = "2.2.3"
 
@@ -65,4 +72,8 @@ dependencies {
     //For the drop-in UI also:
     implementation('com.amazonaws:aws-android-sdk-auth-userpools:2.15.2@aar') { transitive = true }
     implementation 'com.amazonaws:aws-android-sdk-auth-ui:2.15.2'
+    // Pinpoint
+    implementation 'com.amazonaws:aws-android-sdk-pinpoint:2.15.+'
 }
+
+apply plugin: 'com.google.gms.google-services'

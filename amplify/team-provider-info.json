@@ -14,6 +14,13 @@
         "categories": {
             "auth": {
                 "taskmasterd40753fd": {}
+            },
+            "notifications": {
+                "Pinpoint": {
+                    "Name": "taskMasterpwQQY-amplify",
+                    "Id": "8db6a69966954603bf454605ac8a7d03",
+                    "Region": "us-west-2"
+                }
             }
         }
     }

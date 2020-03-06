@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "555689555496",
+    "firebase_url": "https://task-master-52674.firebaseio.com",
+    "project_id": "task-master-52674",
+    "storage_bucket": "task-master-52674.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:555689555496:android:5cfc008b3e791545a9a71d",
+        "android_client_info": {
+          "package_name": "com.chaseatucker.taskmaster"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "555689555496-p57un9h5sijn7t58r2d3uovrfnovgnfr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIzDBjO0skSxTg72CkUWQuzzogebpeT7s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "555689555496-p57un9h5sijn7t58r2d3uovrfnovgnfr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

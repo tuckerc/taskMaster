@@ -19,6 +19,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.amazonaws.amplify.generated.graphql.ListTeamsQuery;
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobile.client.Callback;
+import com.amazonaws.mobile.client.UserState;
+import com.amazonaws.mobile.client.UserStateDetails;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
@@ -31,6 +35,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 
@@ -47,11 +52,53 @@ public class Settings extends AppCompatActivity implements
 
     // OnClickListener for Save User Team Button
     private View.OnClickListener updateUserTeamListener = v -> {
-        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor = p.edit();
-        editor.putString("userTeamID", selectedTeamID);
-        editor.apply();
-        finish();
+//        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//        SharedPreferences.Editor editor = p.edit();
+//        editor.putString("userTeamID", selectedTeamID);
+//        editor.apply();
+
+        AWSMobileClient.getInstance().initialize(getApplicationContext(), new Callback<UserStateDetails>() {
+
+                    @Override
+                    public void onResult(UserStateDetails userStateDetails) {
+                        Log.i(TAG, "INIT onResult: " + userStateDetails.getUserState());
+                        UserState userState = userStateDetails.getUserState();
+                        if(userState.equals(UserState.SIGNED_IN)) {
+                            try {
+                                Map<String, String> userAttributes = AWSMobileClient.getInstance().currentUserState().getDetails();
+                                for(String attribute : userAttributes.keySet()) {
+                                    Log.i(TAG, attribute + ": " + userAttributes.get(attribute));
+                                }
+                            } catch (Exception e) {
+                                Log.i(TAG, "Attempted to update user team, but unable to get user attributes. Error: " + e);
+                            }
+                            Handler h = new Handler(Looper.getMainLooper()) {
+                                @Override
+                                public void handleMessage(Message inputMessage) {
+                                    // update the user team
+
+                                }
+                            };
+                            h.obtainMessage().sendToTarget();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e(TAG, "INIT Initialization error.", e);
+                    }
+                }
+        );
+
+        Handler h = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message inputMessage) {
+
+            }
+        };
+        h.obtainMessage().sendToTarget();
+
+//        finish();
     };
 
     @Override
