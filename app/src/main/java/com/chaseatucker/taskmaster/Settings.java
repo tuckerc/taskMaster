@@ -65,7 +65,7 @@ public class Settings extends AppCompatActivity implements
                         UserState userState = userStateDetails.getUserState();
                         if(userState.equals(UserState.SIGNED_IN)) {
                             try {
-                                Map<String, String> userAttributes = AWSMobileClient.getInstance().currentUserState().getDetails();
+                                Map<String, String> userAttributes = AWSMobileClient.getInstance().getUserAttributes();
                                 for(String attribute : userAttributes.keySet()) {
                                     Log.i(TAG, attribute + ": " + userAttributes.get(attribute));
                                 }

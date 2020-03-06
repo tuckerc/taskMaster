@@ -20,6 +20,7 @@ import com.amazonaws.mobile.client.SignOutOptions;
 import com.amazonaws.mobile.client.UserState;
 import com.amazonaws.mobile.client.UserStateDetails;
 import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.pinpoint.PinpointConfiguration;
 import com.amazonaws.mobileconnectors.pinpoint.PinpointManager;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
@@ -33,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "cat.MainActivity";
     String givenName = "";
+    AWSAppSyncClient mAWSAppSyncClient;
+    String userID;
 
     private static PinpointManager pinpointManager;
 
@@ -82,6 +85,12 @@ public class MainActivity extends AppCompatActivity {
         Button logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(logout);
 
+        // initialize mAWSAppSyncClient
+        mAWSAppSyncClient = AWSAppSyncClient.builder()
+                .context(getApplicationContext())
+                .awsConfiguration(new AWSConfiguration(getApplicationContext()))
+                .build();
+
         // Initialize Firebase
         FirebaseApp.initializeApp(getApplicationContext());
 
@@ -102,16 +111,19 @@ public class MainActivity extends AppCompatActivity {
                         if(userState.equals(UserState.SIGNED_IN)) {
                             try {
                                 givenName = AWSMobileClient.getInstance().getUserAttributes().get("given_name");
+                                userID = AWSMobileClient.getInstance().getUserAttributes().get("sub");
                             } catch (Exception e) {
                                 Log.i(TAG, "error getting userAttributes \n" + e);
                             }
                             Handler h = new Handler(Looper.getMainLooper()) {
                                 @Override
                                 public void handleMessage(Message inputMessage) {
+                                    // update the action bar
                                     setTitle(givenName + "'s Tasks");
                                 }
                             };
                             h.obtainMessage().sendToTarget();
+
                         }
                     }
 
