@@ -14,3 +14,5 @@ Android app used to manage tasks for teams. This includes adding, assigning, tra
   * ![](./screenshots/403_access_denied.png)
 * 3/4/2020: Able to upload and download images from S3
   * ![](./screenshots/s3_03042020.png)
+* 3/5/2020: Able to push test notifications from Firebase
+  * ![](./screenshots/notifications_03052020.png)
