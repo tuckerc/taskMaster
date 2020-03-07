@@ -40,19 +40,15 @@ import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.Nonnull;
 
 import type.CreateFileInput;
 import type.CreateTaskInput;
-import type.TaskInput;
 
 import static com.chaseatucker.taskmaster.FilePickerFragment.PICKFILE_REQUEST_CODE;
 
@@ -144,6 +140,23 @@ public class AddATask extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_atask);
 
+        // Get the intent that started this activity
+        Intent intent = getIntent();
+
+        // Figure out what to do based on the intent type
+        String type = intent.getType();
+        if (type != null && type.contains("image/")) {
+            // Handle intents with image data ...
+            Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            if (imageUri != null) {
+                fileUri = imageUri;
+                fileName = getFileName(fileUri);
+                TextView tvItemPath = this.findViewById(R.id.tv_file_path);
+                tvItemPath.setText(fileName);
+            }
+
+        }
+
         mAWSAppSyncClient = AWSAppSyncClient.builder()
                 .context(getApplicationContext())
                 .awsConfiguration(new AWSConfiguration(getApplicationContext()))
@@ -190,9 +203,7 @@ public class AddATask extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == PICKFILE_REQUEST_CODE && resultCode == -1 && null != data) {
             fileUri = data.getData();
-            Log.i(TAG, "fileUri: " + fileUri);
             fileName = getFileName(fileUri);
-            Log.i(TAG, "fileName: " + fileName);
             TextView tvItemPath = this.findViewById(R.id.tv_file_path);
             tvItemPath.setText(fileName);
         }

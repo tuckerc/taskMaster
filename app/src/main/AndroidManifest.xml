@@ -37,7 +37,13 @@
         <activity android:name=".AllTasks" />
         <activity
             android:name=".AddATask"
-            android:label="Add A Task" />
+            android:label="Add A Task">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="image/*"/>
+            </intent-filter>
+        </activity>
         <activity
             android:name=".MainActivity"
             android:label="My Tasks">

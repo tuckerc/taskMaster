@@ -3,6 +3,7 @@ type Task @model {
   title: String
   body: String
   state: String
+  creator: User @connection(name: "userToTasks")
   team: Team @connection(name: "teamToTasks")
   files: [File] @connection(name: "taskToFiles")
 }
@@ -11,10 +12,19 @@ type Team @model {
   id: ID!
   name: String
   tasks: [Task] @connection(name: "teamToTasks")
+  members: [User] @connection(name: "teamToUsers")
 }
 
 type File @model {
   id: ID!
   name: String
   task: Task @connection(name: "taskToFiles")
+}
+
+type User @model {
+  id: ID!
+  sub: String
+  name: String
+  tasks: [Task] @connection(name: "userToTasks")
+  team: Team @connection(name: "teamToUsers")
 }
