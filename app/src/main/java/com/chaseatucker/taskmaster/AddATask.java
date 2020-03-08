@@ -165,17 +165,24 @@ public class AddATask extends AppCompatActivity implements
         teamsSpinner.setAdapter(adapter);
         teamsSpinner.setOnItemSelectedListener(this);
 
+        // request permission to read external storage
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+        }
+
+        // request permission to write to external storage
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+        }
+
         Button btnChooseFile = this.findViewById(R.id.btn_choose_file);
 
         btnChooseFile.setOnClickListener(v -> {
-            if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-            } else {
-                Intent i = new Intent(
+            Intent i = new Intent(
                         Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(i, PICKFILE_REQUEST_CODE);
-            }
         });
     }
 

@@ -121,8 +121,11 @@ public class TaskFragment extends Fragment {
                         Handler h = new Handler(Looper.getMainLooper()){
                             @Override
                             public void handleMessage(Message inputMessage) {
+                                // get user team id
                                 SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(recyclerView.getContext().getApplicationContext());
                                 String teamID = p.getString("userTeamID", "");
+
+                                // only list user team tasks if team is selected
                                 if(response.data().listTasks().items() != null) {
                                     if(teamID != "") {
                                         for(ListTasksQuery.Item item : response.data().listTasks().items()) {
