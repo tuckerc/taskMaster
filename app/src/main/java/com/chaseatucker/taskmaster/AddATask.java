@@ -1,7 +1,6 @@
 package com.chaseatucker.taskmaster;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -69,7 +68,6 @@ public class AddATask extends AppCompatActivity implements
     String taskNameStr;
     String taskBodyStr;
     String newestFileID;
-    String filePath;
 
     // Create an anonymous implementation of OnClickListener
     private View.OnClickListener newTaskCreateListener = new View.OnClickListener() {
@@ -113,7 +111,7 @@ public class AddATask extends AppCompatActivity implements
                                                 Log.i(TAG, "created file task id: " + response.data().createFile().task().id());
 
                                                 newestFileID = response.data().createFile().id();
-                                                uploadWithTransferUtility(filePath);
+                                                uploadWithTransferUtility(fileUri);
                                             }
 
                                             @Override
@@ -141,23 +139,6 @@ public class AddATask extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_atask);
-
-        // Get the intent that started this activity
-        Intent intent = getIntent();
-
-        // Figure out what to do based on the intent type
-        String type = intent.getType();
-        if (type != null && type.contains("image/")) {
-            // Handle intents with image data ...
-            Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if (imageUri != null) {
-                fileUri = imageUri;
-                fileName = getFileName(fileUri);
-                TextView tvItemPath = this.findViewById(R.id.tv_file_path);
-                tvItemPath.setText(fileName);
-            }
-
-        }
 
         mAWSAppSyncClient = AWSAppSyncClient.builder()
                 .context(getApplicationContext())
@@ -192,7 +173,7 @@ public class AddATask extends AppCompatActivity implements
                 ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
             } else {
                 Intent i = new Intent(
-                        Intent.ACTION_OPEN_DOCUMENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(i, PICKFILE_REQUEST_CODE);
             }
         });
@@ -205,9 +186,9 @@ public class AddATask extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == PICKFILE_REQUEST_CODE && resultCode == -1 && null != data) {
             fileUri = data.getData();
+            Log.i(TAG, "fileUri: " + fileUri);
             fileName = getFileName(fileUri);
-            filePath = getRealPathFromURI(fileUri);
-            Log.i(TAG, "filePath: " + filePath);
+            Log.i(TAG, "fileName: " + fileName);
             TextView tvItemPath = this.findViewById(R.id.tv_file_path);
             tvItemPath.setText(fileName);
         }
@@ -233,24 +214,6 @@ public class AddATask extends AppCompatActivity implements
             }
         }
         return result;
-    }
-
-    private String getRealPathFromURI(Uri contentUri) {
-        Cursor cursor = null;
-        try {
-            String[] proj = { MediaStore.Images.Media.DATA };
-            cursor = getContentResolver().query(contentUri,  proj, null, null, null);
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        } catch (Exception e) {
-            Log.e(TAG, "getRealPathFromURI Exception : " + e.toString());
-            return "";
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
     }
 
     @Override
@@ -297,7 +260,7 @@ public class AddATask extends AppCompatActivity implements
 
     }
 
-    public void uploadWithTransferUtility(String filePath) {
+    public void uploadWithTransferUtility(Uri uri) {
 
         TransferUtility transferUtility =
                 TransferUtility.builder()
@@ -306,17 +269,15 @@ public class AddATask extends AppCompatActivity implements
                         .s3Client(new AmazonS3Client(AWSMobileClient.getInstance()))
                         .build();
 
-//        String[] filePathColumn = { MediaStore.Images.Media.DATA };
-//
-//        Cursor cursor = getContentResolver().query(uri,
-//                filePathColumn, null, null, null);
-//        cursor.moveToFirst();
-//
-//        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-//        String filePath = cursor.getString(columnIndex);
-//        cursor.close();
+        String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
+        Cursor cursor = getContentResolver().query(uri,
+                filePathColumn, null, null, null);
+        cursor.moveToFirst();
 
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        String filePath = cursor.getString(columnIndex);
+        cursor.close();
 
         TransferObserver uploadObserver =
                 transferUtility.upload(
