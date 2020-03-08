@@ -2,6 +2,7 @@ package com.chaseatucker.taskmaster;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amazonaws.amplify.generated.graphql.ListTeamsQuery;
 import com.amazonaws.amplify.generated.graphql.UpdateUserMutation;
@@ -56,40 +58,59 @@ public class Settings extends AppCompatActivity implements
     // OnClickListener for Save User Team Button
     private View.OnClickListener updateUserTeamListener = v -> {
 
-        Thread thread = new Thread(() -> {
-            try  {
-                try {
-                    String userID = AWSMobileClient.getInstance().getUserAttributes().get("sub");
+        Handler h = new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(Message inputMessage) {
+                Thread thread = new Thread(() -> {
+                    try  {
+                        try {
+                            String userID = AWSMobileClient.getInstance().getUserAttributes().get("sub");
 
-                    UpdateUserInput user = UpdateUserInput.builder()
-                            .id(userID)
-                            .userTeamId(selectedTeamID)
-                            .build();
+                            UpdateUserInput user = UpdateUserInput.builder()
+                                    .id(userID)
+                                    .userTeamId(selectedTeamID)
+                                    .build();
 
-                    mAWSAppSyncClient.mutate(UpdateUserMutation.builder().input(user).build())
-                            .enqueue(new GraphQLCall.Callback<UpdateUserMutation.Data>() {
-                                @Override
-                                public void onResponse(@Nonnull Response<UpdateUserMutation.Data> response) {
-                                    Log.i(TAG, AWSMobileClient.getInstance().getUsername() +
-                                            "'s team successfully updated to team id " +
-                                            response.data().updateUser().team().id());
-                                }
+                            mAWSAppSyncClient.mutate(UpdateUserMutation.builder().input(user).build())
+                                    .enqueue(new GraphQLCall.Callback<UpdateUserMutation.Data>() {
+                                        @Override
+                                        public void onResponse(@Nonnull Response<UpdateUserMutation.Data> response) {
+                                            Log.i(TAG, AWSMobileClient.getInstance().getUsername() +
+                                                    "'s team successfully updated to team id " +
+                                                    response.data().updateUser().team().id());
 
-                                @Override
-                                public void onFailure(@Nonnull ApolloException e) {
-                                    Log.e(TAG, "Failed to update " +
-                                            AWSMobileClient.getInstance().getUsername() +
-                                            "'s team id to " + selectedTeamID, e);
-                                }
-                            });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+                                            // store user team id in shared prefs
+                                            SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                            SharedPreferences.Editor editor = p.edit();
+                                            editor.putString("userTeamID", selectedTeamID);
+                                            editor.apply();
+                                        }
+
+                                        @Override
+                                        public void onFailure(@Nonnull ApolloException e) {
+                                            Log.e(TAG, "Failed to update " +
+                                                    AWSMobileClient.getInstance().getUsername() +
+                                                    "'s team id to " + selectedTeamID, e);
+                                        }
+                                    });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+                thread.start();
             }
-        });
-        thread.start();
+        };
+        h.obtainMessage().sendToTarget();
+
+        Context context = getApplicationContext();
+        CharSequence text = "Team Updated!";
+        int duration = Toast.LENGTH_LONG;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
 
         finish();
     };

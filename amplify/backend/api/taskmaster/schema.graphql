@@ -3,6 +3,7 @@ type Task @model {
   title: String
   body: String
   state: String
+  createdLocation: String
   user: User @connection(name: "UserTasks")
   files: [File] @connection(name: "TaskFiles")
   team: Team @connection(name: "TeamTasks")

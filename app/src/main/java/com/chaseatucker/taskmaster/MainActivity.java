@@ -1,17 +1,23 @@
 package com.chaseatucker.taskmaster;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.amazonaws.amplify.generated.graphql.CreateUserMutation;
 import com.amazonaws.amplify.generated.graphql.ListUsersQuery;
@@ -46,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     String givenName = "";
     AWSAppSyncClient mAWSAppSyncClient;
     String userID;
+    String userTeamID;
 
     private static PinpointManager pinpointManager;
 
@@ -105,6 +112,18 @@ public class MainActivity extends AppCompatActivity {
         Button logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(logout);
 
+        // request permission to read external storage
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+        }
+
+        // request permission to write to external storage
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+        }
+
         // initialize mAWSAppSyncClient
         mAWSAppSyncClient = AWSAppSyncClient.builder()
                 .context(getApplicationContext())
@@ -141,8 +160,17 @@ public class MainActivity extends AppCompatActivity {
                                                 if(response.data().listUsers() != null) {
                                                     boolean userCreated = false;
                                                     for(ListUsersQuery.Item user : response.data().listUsers().items()) {
-                                                        if(user.id().equals(userID))
+                                                        if(user.id().equals(userID)) {
                                                             userCreated = true;
+
+                                                            userTeamID = user.team().id();
+
+                                                            // store user team id in shared prefs
+                                                            SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                                            SharedPreferences.Editor editor = p.edit();
+                                                            editor.putString("userTeamID", userTeamID);
+                                                            editor.apply();
+                                                        }
                                                     }
                                                     if(!userCreated) {
                                                         CreateUserInput newUser = CreateUserInput.builder()
@@ -192,9 +220,10 @@ public class MainActivity extends AppCompatActivity {
 
                                             @Override
                                             public void onFailure(@Nonnull ApolloException e) {
-
+                                                Log.e(TAG, "failure listing users " + e);
                                             }
                                         });
+
                             } catch (Exception e) {
                                 Log.i(TAG, "error getting userAttributes \n" + e);
                             }
