@@ -10,7 +10,9 @@
         android:id="@+id/taskDetailTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:text="@string/task_details"
         android:textAlignment="center"
         android:textColor="@android:color/black"
@@ -23,7 +25,9 @@
         android:id="@+id/taskStateTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:text="@string/task_state"
         android:textAlignment="center"
         android:textColor="@android:color/black"
@@ -44,8 +48,9 @@
         android:textColor="@android:color/black"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/taskTeamTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/task_detail_task_location_tv" />
 
     <Button
         android:id="@+id/update_task_button"
@@ -76,7 +81,9 @@
         android:id="@+id/taskTeamTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:text="@string/task_team"
         android:textAlignment="center"
         android:textColor="@android:color/black"
@@ -97,5 +104,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/taskBodyTextView"
         tools:layout="@layout/fragment_file_list" />
+
+    <TextView
+        android:id="@+id/task_detail_task_location_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/taskTeamTextView"
+        tools:text="Task Location" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,6 +4,9 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,6 +23,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -39,8 +43,13 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,82 +72,25 @@ public class AddATask extends AppCompatActivity implements
     HashMap<String, String> teamIDsMap;
     String selectedTeamID = "";
     Uri fileUri;
-    String fileName;
-    String addedTaskID;
-    String taskNameStr;
-    String taskBodyStr;
-    String newestFileID;
-
-    // Create an anonymous implementation of OnClickListener
-    private View.OnClickListener newTaskCreateListener = new View.OnClickListener() {
-        public void onClick(View v) {
-
-            // grab new task title and body
-            EditText taskName = findViewById(R.id.newTaskNamePT);
-            taskNameStr = taskName.getText().toString();
-            EditText taskBody = findViewById(R.id.newTaskBodyPT);
-            taskBodyStr = taskBody.getText().toString();
-
-            CreateTaskInput newTask = CreateTaskInput.builder().
-                    title(taskNameStr).
-                    body(taskBodyStr).
-                    state("new").
-                    taskTeamId(selectedTeamID).
-                    build();
-
-            // create the new task
-            mAWSAppSyncClient.mutate(CreateTaskMutation.builder().input(newTask).build()).enqueue(
-                    new GraphQLCall.Callback<CreateTaskMutation.Data>() {
-                        @Override
-                        public void onResponse(@Nonnull Response<CreateTaskMutation.Data> response) {
-                            // store the added task id
-                            addedTaskID = response.data().createTask().id();
-
-                            // upload file to S3
-                            if(fileUri != null) {
-                                CreateFileInput createFileInput = CreateFileInput.builder().
-                                        name(fileName).
-                                        fileTaskId(addedTaskID).
-                                        build();
-
-
-                                // create the new file in DynamoDB
-                                mAWSAppSyncClient.mutate(CreateFileMutation.builder().input(createFileInput).build()).enqueue(
-                                        new GraphQLCall.Callback<CreateFileMutation.Data>() {
-                                            @Override
-                                            public void onResponse(@Nonnull Response<CreateFileMutation.Data> response) {
-                                                Log.i(TAG, "created file id: " + response.data().createFile().id());
-                                                Log.i(TAG, "created file task id: " + response.data().createFile().task().id());
-
-                                                newestFileID = response.data().createFile().id();
-                                                uploadWithTransferUtility(fileUri);
-                                            }
-
-                                            @Override
-                                            public void onFailure(@Nonnull ApolloException e) {
-                                                Log.i(TAG, "error creating file");
-                                            }
-                                        }
-                                );
-                            }
-
-                            // go back to previous activity
-                            finish();
-                        }
-
-                        @Override
-                        public void onFailure(@Nonnull ApolloException e) {
-                            Log.i(TAG, "failed to add task: " + e);
-                        }
-                    }
-            );
-        }
-    };
+    String fileName = "";
+    String addedTaskID = "";
+    String taskNameStr = "";
+    String taskBodyStr = "";
+    String newestFileID = "";
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_atask);
+
+        // request permission to write to external storage
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
+        }
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         mAWSAppSyncClient = AWSAppSyncClient.builder()
                 .context(getApplicationContext())
@@ -186,43 +138,6 @@ public class AddATask extends AppCompatActivity implements
         });
     }
 
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICKFILE_REQUEST_CODE && resultCode == -1 && null != data) {
-            fileUri = data.getData();
-            Log.i(TAG, "fileUri: " + fileUri);
-            fileName = getFileName(fileUri);
-            Log.i(TAG, "fileName: " + fileName);
-            TextView tvItemPath = this.findViewById(R.id.tv_file_path);
-            tvItemPath.setText(fileName);
-        }
-    }
-
-    public String getFileName(Uri uri) {
-        String result = null;
-        if (uri.getScheme().equals("content")) {
-            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-            try {
-                if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-        if (result == null) {
-            result = uri.getPath();
-            int cut = result.lastIndexOf('/');
-            if (cut != -1) {
-                result = result.substring(cut + 1);
-            }
-        }
-        return result;
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -266,6 +181,209 @@ public class AddATask extends AppCompatActivity implements
     public void onNothingSelected(AdapterView<?> parent) {
 
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PICKFILE_REQUEST_CODE && resultCode == -1 && null != data) {
+            fileUri = data.getData();
+            Log.i(TAG, "fileUri: " + fileUri);
+            fileName = getFileName(fileUri);
+            Log.i(TAG, "fileName: " + fileName);
+            TextView tvItemPath = this.findViewById(R.id.tv_file_path);
+            tvItemPath.setText(fileName);
+        }
+    }
+
+    public String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
+    // Create an anonymous implementation of OnClickListener
+    private final View.OnClickListener newTaskCreateListener = new View.OnClickListener() {
+        public void onClick(View v) {
+
+            // grab new task title and body
+            EditText taskName = findViewById(R.id.newTaskNamePT);
+            taskNameStr = taskName.getText().toString();
+            EditText taskBody = findViewById(R.id.newTaskBodyPT);
+            taskBodyStr = taskBody.getText().toString();
+
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(AddATask.this, location -> {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            Geocoder gc = new Geocoder(getApplicationContext());
+                            if(gc.isPresent()){
+                                List<Address> list = null;
+                                try {
+                                    list = gc.getFromLocation(location.getLatitude(), location.getLongitude(),1);
+                                } catch (IOException e) {
+                                    Log.e(TAG, "failed to get user geocode data " + e);
+                                }
+                                Address address = list.get(0);
+                                String userLocation = address.getLocality() + ", " + address.getAdminArea();
+
+                                Log.i(TAG, "task city and state: " + userLocation);
+
+                                CreateTaskInput newTask;
+
+                                if(taskBodyStr.equals("")) {
+                                    newTask = CreateTaskInput.builder().
+                                            title(taskNameStr).
+                                            state("new").
+                                            taskTeamId(selectedTeamID).
+                                            createdLocation(userLocation).
+                                            build();
+                                } else {
+                                    newTask = CreateTaskInput.builder().
+                                            title(taskNameStr).
+                                            body(taskBodyStr).
+                                            state("new").
+                                            taskTeamId(selectedTeamID).
+                                            createdLocation(userLocation).
+                                            build();
+                                }
+
+                                // create the new task
+                                mAWSAppSyncClient.mutate(CreateTaskMutation.builder().input(newTask).build()).enqueue(
+                                        new GraphQLCall.Callback<CreateTaskMutation.Data>() {
+                                            @Override
+                                            public void onResponse(@Nonnull Response<CreateTaskMutation.Data> response) {
+                                                // store the added task id
+                                                addedTaskID = response.data().createTask().id();
+
+                                                // upload file to S3
+                                                if (fileUri != null) {
+                                                    CreateFileInput createFileInput = CreateFileInput.builder().
+                                                            name(fileName).
+                                                            fileTaskId(addedTaskID).
+                                                            build();
+
+
+                                                    // create the new file in DynamoDB
+                                                    mAWSAppSyncClient.mutate(CreateFileMutation.builder().input(createFileInput).build()).enqueue(
+                                                            new GraphQLCall.Callback<CreateFileMutation.Data>() {
+                                                                @Override
+                                                                public void onResponse(@Nonnull Response<CreateFileMutation.Data> response) {
+                                                                    Log.i(TAG, "created file id: " + response.data().createFile().id());
+                                                                    Log.i(TAG, "created file task id: " + response.data().createFile().task().id());
+
+                                                                    newestFileID = response.data().createFile().id();
+                                                                    uploadWithTransferUtility(fileUri);
+                                                                }
+
+                                                                @Override
+                                                                public void onFailure(@Nonnull ApolloException e) {
+                                                                    Log.i(TAG, "error creating file");
+                                                                }
+                                                            }
+                                                    );
+                                                }
+
+                                                // go back to previous activity
+                                                finish();
+                                            }
+
+                                            @Override
+                                            public void onFailure(@Nonnull ApolloException e) {
+                                                Log.i(TAG, "failed to add task: " + e);
+                                            }
+                                        }
+                                );
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG, "failed to get user location" + e.getMessage());
+
+                            CreateTaskInput newTask;
+
+                            if(taskBodyStr.equals("")) {
+                                newTask = CreateTaskInput.builder().
+                                        title(taskNameStr).
+                                        state("new").
+                                        taskTeamId(selectedTeamID).
+                                        build();
+                            } else {
+                                newTask = CreateTaskInput.builder().
+                                        title(taskNameStr).
+                                        body(taskBodyStr).
+                                        state("new").
+                                        taskTeamId(selectedTeamID).
+                                        build();
+                            }
+
+                            // create the new task
+                            mAWSAppSyncClient.mutate(CreateTaskMutation.builder().input(newTask).build()).enqueue(
+                                    new GraphQLCall.Callback<CreateTaskMutation.Data>() {
+                                        @Override
+                                        public void onResponse(@Nonnull Response<CreateTaskMutation.Data> response) {
+                                            // store the added task id
+                                            addedTaskID = response.data().createTask().id();
+
+                                            // upload file to S3
+                                            if (fileUri != null) {
+                                                CreateFileInput createFileInput = CreateFileInput.builder().
+                                                        name(fileName).
+                                                        fileTaskId(addedTaskID).
+                                                        build();
+
+
+                                                // create the new file in DynamoDB
+                                                mAWSAppSyncClient.mutate(CreateFileMutation.builder().input(createFileInput).build()).enqueue(
+                                                        new GraphQLCall.Callback<CreateFileMutation.Data>() {
+                                                            @Override
+                                                            public void onResponse(@Nonnull Response<CreateFileMutation.Data> response) {
+                                                                Log.i(TAG, "created file id: " + response.data().createFile().id());
+                                                                Log.i(TAG, "created file task id: " + response.data().createFile().task().id());
+
+                                                                newestFileID = response.data().createFile().id();
+                                                                uploadWithTransferUtility(fileUri);
+                                                            }
+
+                                                            @Override
+                                                            public void onFailure(@Nonnull ApolloException e) {
+                                                                Log.i(TAG, "error creating file");
+                                                            }
+                                                        }
+                                                );
+                                            }
+
+                                            // go back to previous activity
+                                            finish();
+                                        }
+
+                                        @Override
+                                        public void onFailure(@Nonnull ApolloException e) {
+                                            Log.i(TAG, "failed to add task: " + e);
+                                        }
+                                    }
+                            );
+                        }
+                    });
+        }
+    };
 
     public void uploadWithTransferUtility(Uri uri) {
 

@@ -5,6 +5,7 @@ subscription OnCreateTask {
     title
     body
     state
+    createdLocation
     user {
       id
       username
@@ -41,6 +42,7 @@ subscription OnUpdateTask {
     title
     body
     state
+    createdLocation
     user {
       id
       username
@@ -77,6 +79,7 @@ subscription OnDeleteTask {
     title
     body
     state
+    createdLocation
     user {
       id
       username
@@ -124,6 +127,7 @@ subscription OnCreateTeam {
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
@@ -146,6 +150,7 @@ subscription OnUpdateTeam {
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
@@ -168,6 +173,7 @@ subscription OnDeleteTeam {
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
@@ -182,6 +188,7 @@ subscription OnCreateFile {
       title
       body
       state
+      createdLocation
       user {
         id
         username
@@ -205,6 +212,7 @@ subscription OnUpdateFile {
       title
       body
       state
+      createdLocation
       user {
         id
         username
@@ -228,6 +236,7 @@ subscription OnDeleteFile {
       title
       body
       state
+      createdLocation
       user {
         id
         username
@@ -262,6 +271,7 @@ subscription OnCreateUser {
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
@@ -287,6 +297,7 @@ subscription OnUpdateUser {
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
@@ -312,6 +323,7 @@ subscription OnDeleteUser {
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
