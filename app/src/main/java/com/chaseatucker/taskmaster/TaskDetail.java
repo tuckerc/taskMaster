@@ -91,8 +91,8 @@ public class TaskDetail extends AppCompatActivity {
 
                                 TextView taskTeamTextView = findViewById(R.id.taskTeamTextView);
                                 String taskTeam = "Team: ";
-                                if(response.data().getTask().user().team() != null) {
-                                    taskTeam += response.data().getTask().user().team().name();
+                                if(response.data().getTask().team() != null) {
+                                    taskTeam += response.data().getTask().team().name();
                                 } else {
                                     taskTeam += "none";
                                 }

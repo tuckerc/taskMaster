@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -42,7 +41,7 @@ public class AddATeam extends AppCompatActivity {
                     new GraphQLCall.Callback<CreateTeamMutation.Data>() {
                         @Override
                         public void onResponse(@Nonnull Response<CreateTeamMutation.Data> response) {
-                            Log.i(TAG, "team " + response.data().createTeam().name() + "successfully created");
+                            Log.i(TAG, "team " + response.data().createTeam().name() + " successfully created");
                             finish();
                         }
 
