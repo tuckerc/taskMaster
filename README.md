@@ -18,3 +18,5 @@ Android app used to manage tasks for teams. This includes adding, assigning, tra
   * ![](./screenshots/notifications_03052020.png)
 * 3/6/2020: Able to select Task Master as a share option for an image on device
   * ![](./screenshots/intent_filter_03062020.png)
+* 3/8/2020: Storing location of task creation
+  * ![](./screenshots/task_location_03082020.png)

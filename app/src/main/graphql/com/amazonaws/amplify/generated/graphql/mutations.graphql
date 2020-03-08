@@ -8,6 +8,7 @@ mutation CreateTask(
     title
     body
     state
+    createdLocation
     user {
       id
       username
@@ -47,6 +48,7 @@ mutation UpdateTask(
     title
     body
     state
+    createdLocation
     user {
       id
       username
@@ -86,6 +88,7 @@ mutation DeleteTask(
     title
     body
     state
+    createdLocation
     user {
       id
       username
@@ -136,6 +139,7 @@ mutation CreateTeam(
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
@@ -161,6 +165,7 @@ mutation UpdateTeam(
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
@@ -186,6 +191,7 @@ mutation DeleteTeam(
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
@@ -203,6 +209,7 @@ mutation CreateFile(
       title
       body
       state
+      createdLocation
       user {
         id
         username
@@ -229,6 +236,7 @@ mutation UpdateFile(
       title
       body
       state
+      createdLocation
       user {
         id
         username
@@ -255,6 +263,7 @@ mutation DeleteFile(
       title
       body
       state
+      createdLocation
       user {
         id
         username
@@ -292,6 +301,7 @@ mutation CreateUser(
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
@@ -320,6 +330,7 @@ mutation UpdateUser(
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
@@ -348,6 +359,7 @@ mutation DeleteUser(
         title
         body
         state
+        createdLocation
       }
       nextToken
     }

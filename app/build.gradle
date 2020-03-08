@@ -32,6 +32,7 @@ android {
 dependencies {
     // Overrides an auth dependency to ensure correct behavior
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
 
     // Firebase
     implementation 'com.google.firebase:firebase-core:17.2.3'

@@ -98,6 +98,12 @@ public class TaskDetail extends AppCompatActivity {
                                 }
                                 taskTeamTextView.setText(taskTeam);
 
+                                TextView taskLocationTextView = findViewById(R.id.task_detail_task_location_tv);
+                                String taskLocation = "Creation Location: ";
+                                if(response.data().getTask().createdLocation() != null) {
+                                    taskLocation += response.data().getTask().createdLocation();
+                                }
+                                taskLocationTextView.setText(taskLocation);
 
                                 String taskBody = response.data().getTask().body();
                                 TextView taskBodyTextView = findViewById(R.id.taskBodyTextView);

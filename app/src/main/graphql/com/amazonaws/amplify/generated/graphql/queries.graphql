@@ -5,6 +5,7 @@ query GetTask($id: ID!) {
     title
     body
     state
+    createdLocation
     user {
       id
       username
@@ -46,6 +47,7 @@ query ListTasks(
       title
       body
       state
+      createdLocation
       user {
         id
         username
@@ -78,6 +80,7 @@ query GetTeam($id: ID!) {
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
@@ -111,6 +114,7 @@ query GetFile($id: ID!) {
       title
       body
       state
+      createdLocation
       user {
         id
         username
@@ -139,6 +143,7 @@ query ListFiles(
         title
         body
         state
+        createdLocation
       }
     }
     nextToken
@@ -164,6 +169,7 @@ query GetUser($id: ID!) {
         title
         body
         state
+        createdLocation
       }
       nextToken
     }
