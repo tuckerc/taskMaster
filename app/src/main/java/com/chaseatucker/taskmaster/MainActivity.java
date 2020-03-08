@@ -39,6 +39,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static PinpointManager pinpointManager;
 
+    // OnClickListener to go to add a team
+    private View.OnClickListener goToNewTeamCreator = v -> {
+        Intent i = new Intent(getBaseContext(), AddATeam.class);
+        startActivity(i);
+    };
+
     // OnClickListener to go to add a task
     private View.OnClickListener goToNewTaskCreator = v -> {
         Intent i = new Intent(getBaseContext(), AddATask.class);
@@ -72,6 +78,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // add on click listener to newTaskButton
+        Button newTeamButton = findViewById(R.id.main_add_a_team_btn);
+        newTeamButton.setOnClickListener(goToNewTeamCreator);
 
         // add on click listener to newTaskButton
         Button newTaskButton = findViewById(R.id.addTaskButton);

@@ -126,17 +126,13 @@ public class TaskFragment extends Fragment {
                                 if(response.data().listTasks().items() != null) {
                                     if(teamID != "") {
                                         for(ListTasksQuery.Item item : response.data().listTasks().items()) {
-                                            if(item._deleted() == null || !item._deleted()) {
-                                                if(item.team() != null && item.team().id().equals(teamID)) {
-                                                    taskList.add(item);
-                                                }
+                                            if(item.team() != null && item.team().id().equals(teamID)) {
+                                                taskList.add(item);
                                             }
                                         }
                                     } else {
                                         for(ListTasksQuery.Item item : response.data().listTasks().items()) {
-                                            if(item._deleted() == null || !item._deleted()) {
-                                                taskList.add(item);
-                                            }
+                                            taskList.add(item);
                                         }
                                     }
                                 }

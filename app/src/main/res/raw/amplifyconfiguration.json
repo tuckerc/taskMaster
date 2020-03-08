@@ -4,11 +4,12 @@
     "api": {
         "plugins": {
             "awsAPIPlugin": {
-                "amplifyDatasource": {
+                "taskmaster": {
                     "endpointType": "GraphQL",
-                    "endpoint": "https://oyvs5ug725g2ro2ntrreem5bg4.appsync-api.us-west-2.amazonaws.com/graphql",
+                    "endpoint": "https://sqwsne6dufhxzk6ytcakod7roe.appsync-api.us-west-2.amazonaws.com/graphql",
                     "region": "us-west-2",
-                    "authorizationType": "API_KEY"
+                    "authorizationType": "API_KEY",
+                    "apiKey": "da2-6mae73gb2bd4bb23eldqunl62q"
                 }
             }
         }
@@ -16,7 +17,7 @@
     "storage": {
         "plugins": {
             "awsS3StoragePlugin": {
-                "bucket": "taskmaster122339-amplify",
+                "bucket": "taskmasterbucket173908-tmenv",
                 "region": "us-west-2",
                 "defaultAccessLevel": "guest"
             }

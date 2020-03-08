@@ -41,4 +41,6 @@
     <string name="permission_read_external_storage">Task Master requests permission to access your files</string>
     <string name="log_out">Log Out</string>
     <string name="open_file">OPEN FILE</string>
+    <string name="add_team">Add Team</string>
+    <string name="add_a_team">Add A Team</string>
 </resources>

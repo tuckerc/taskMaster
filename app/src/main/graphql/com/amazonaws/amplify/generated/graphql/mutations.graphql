@@ -8,31 +8,34 @@ mutation CreateTask(
     title
     body
     state
-    team {
+    user {
       id
-      name
+      username
+      team {
+        id
+        name
+      }
       tasks {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
     }
     files {
       items {
         id
         name
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
   }
 }
 mutation UpdateTask(
@@ -44,31 +47,34 @@ mutation UpdateTask(
     title
     body
     state
-    team {
+    user {
       id
-      name
+      username
+      team {
+        id
+        name
+      }
       tasks {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
     }
     files {
       items {
         id
         name
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
   }
 }
 mutation DeleteTask(
@@ -80,31 +86,34 @@ mutation DeleteTask(
     title
     body
     state
-    team {
+    user {
       id
-      name
+      username
+      team {
+        id
+        name
+      }
       tasks {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
     }
     files {
       items {
         id
         name
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
   }
 }
 mutation CreateTeam(
@@ -114,22 +123,22 @@ mutation CreateTeam(
   createTeam(input: $input, condition: $condition) {
     id
     name
+    users {
+      items {
+        id
+        username
+      }
+      nextToken
+    }
     tasks {
       items {
         id
         title
         body
         state
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
   }
 }
 mutation UpdateTeam(
@@ -139,22 +148,22 @@ mutation UpdateTeam(
   updateTeam(input: $input, condition: $condition) {
     id
     name
+    users {
+      items {
+        id
+        username
+      }
+      nextToken
+    }
     tasks {
       items {
         id
         title
         body
         state
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
   }
 }
 mutation DeleteTeam(
@@ -164,22 +173,22 @@ mutation DeleteTeam(
   deleteTeam(input: $input, condition: $condition) {
     id
     name
+    users {
+      items {
+        id
+        username
+      }
+      nextToken
+    }
     tasks {
       items {
         id
         title
         body
         state
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
   }
 }
 mutation CreateFile(
@@ -194,24 +203,18 @@ mutation CreateFile(
       title
       body
       state
-      team {
+      user {
         id
-        name
-        _version
-        _deleted
-        _lastChangedAt
+        username
       }
       files {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
+      team {
+        id
+        name
+      }
     }
-    _version
-    _deleted
-    _lastChangedAt
   }
 }
 mutation UpdateFile(
@@ -226,24 +229,18 @@ mutation UpdateFile(
       title
       body
       state
-      team {
+      user {
         id
-        name
-        _version
-        _deleted
-        _lastChangedAt
+        username
       }
       files {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
+      team {
+        id
+        name
+      }
     }
-    _version
-    _deleted
-    _lastChangedAt
   }
 }
 mutation DeleteFile(
@@ -258,23 +255,101 @@ mutation DeleteFile(
       title
       body
       state
-      team {
+      user {
         id
-        name
-        _version
-        _deleted
-        _lastChangedAt
+        username
       }
       files {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
+      team {
+        id
+        name
+      }
     }
-    _version
-    _deleted
-    _lastChangedAt
+  }
+}
+mutation CreateUser(
+  $input: CreateUserInput!
+  $condition: ModelUserConditionInput
+) {
+  createUser(input: $input, condition: $condition) {
+    id
+    username
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
+    tasks {
+      items {
+        id
+        title
+        body
+        state
+      }
+      nextToken
+    }
+  }
+}
+mutation UpdateUser(
+  $input: UpdateUserInput!
+  $condition: ModelUserConditionInput
+) {
+  updateUser(input: $input, condition: $condition) {
+    id
+    username
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
+    tasks {
+      items {
+        id
+        title
+        body
+        state
+      }
+      nextToken
+    }
+  }
+}
+mutation DeleteUser(
+  $input: DeleteUserInput!
+  $condition: ModelUserConditionInput
+) {
+  deleteUser(input: $input, condition: $condition) {
+    id
+    username
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
+    tasks {
+      items {
+        id
+        title
+        body
+        state
+      }
+      nextToken
+    }
   }
 }

@@ -1,6 +1,6 @@
 {
     "api": {
-        "amplifyDatasource": {
+        "taskmaster": {
             "service": "AppSync",
             "providerPlugin": "awscloudformation",
             "output": {
@@ -9,7 +9,7 @@
                     "defaultAuthentication": {
                         "authenticationType": "API_KEY",
                         "apiKeyConfig": {
-                            "description": "API Key for Task Master",
+                            "description": "API key for Task Master",
                             "apiKeyExpirationDays": 7
                         }
                     }
@@ -18,20 +18,21 @@
         }
     },
     "auth": {
-        "taskmasterd40753fd": {
+        "taskmaster935d7ee4": {
             "service": "Cognito",
             "providerPlugin": "awscloudformation",
-            "dependsOn": []
+            "dependsOn": [],
+            "customAuth": false
         }
     },
     "storage": {
-        "taskmasterstorage": {
+        "s3599b3d45": {
             "service": "S3",
             "providerPlugin": "awscloudformation"
         }
     },
     "notifications": {
-        "taskMasterpwQQY": {
+        "taskMasterp4Q2U": {
             "service": "Pinpoint",
             "channels": [
                 "FCM"
