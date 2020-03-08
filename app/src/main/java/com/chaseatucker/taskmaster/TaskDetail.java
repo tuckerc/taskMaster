@@ -38,7 +38,6 @@ public class TaskDetail extends AppCompatActivity {
     private static final String TAG = "cat.taskDetail";
     AWSAppSyncClient mAWSAppSyncClient;
     String taskID = "";
-    int version;
     List<GetTaskQuery.Item> files = new LinkedList<>();
 
     @Override
@@ -86,8 +85,6 @@ public class TaskDetail extends AppCompatActivity {
                                 TextView taskTitle = findViewById(R.id.taskDetailTitle);
                                 taskTitle.setText(taskName);
 
-                                Log.i(TAG, "task version: " + response.data().getTask()._version());
-
                                 String taskState = "Status: " + response.data().getTask().state();
                                 TextView taskStateTextView = findViewById(R.id.taskStateTextView);
                                 taskStateTextView.setText(taskState);
@@ -107,8 +104,6 @@ public class TaskDetail extends AppCompatActivity {
                                 taskBodyTextView.setText(taskBody);
 
                                 taskID = response.data().getTask().id();
-
-                                version = response.data().getTask()._version();
 
                                 if(response.data().getTask().files().items() != null) {
                                     files = response.data().getTask().files().items();
@@ -165,7 +160,6 @@ public class TaskDetail extends AppCompatActivity {
     private View.OnClickListener deleteTaskListener = v -> {
         DeleteTaskInput task = DeleteTaskInput.builder()
                 .id(taskID)
-                ._version(version)
                 .build();
 
         Log.i(TAG, "trying to delete task: " + taskID);

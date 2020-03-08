@@ -19,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.amazonaws.amplify.generated.graphql.ListTeamsQuery;
+import com.amazonaws.amplify.generated.graphql.UpdateUserMutation;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.Callback;
 import com.amazonaws.mobile.client.UserState;
@@ -39,6 +40,8 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import type.UpdateUserInput;
+
 public class Settings extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
 
@@ -52,53 +55,43 @@ public class Settings extends AppCompatActivity implements
 
     // OnClickListener for Save User Team Button
     private View.OnClickListener updateUserTeamListener = v -> {
-//        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//        SharedPreferences.Editor editor = p.edit();
-//        editor.putString("userTeamID", selectedTeamID);
-//        editor.apply();
 
-        AWSMobileClient.getInstance().initialize(getApplicationContext(), new Callback<UserStateDetails>() {
+        Thread thread = new Thread(() -> {
+            try  {
+                try {
+                    String userID = AWSMobileClient.getInstance().getUserAttributes().get("sub");
 
-                    @Override
-                    public void onResult(UserStateDetails userStateDetails) {
-                        Log.i(TAG, "INIT onResult: " + userStateDetails.getUserState());
-                        UserState userState = userStateDetails.getUserState();
-                        if(userState.equals(UserState.SIGNED_IN)) {
-                            try {
-                                Map<String, String> userAttributes = AWSMobileClient.getInstance().getUserAttributes();
-                                for(String attribute : userAttributes.keySet()) {
-                                    Log.i(TAG, attribute + ": " + userAttributes.get(attribute));
-                                }
-                            } catch (Exception e) {
-                                Log.i(TAG, "Attempted to update user team, but unable to get user attributes. Error: " + e);
-                            }
-                            Handler h = new Handler(Looper.getMainLooper()) {
+                    UpdateUserInput user = UpdateUserInput.builder()
+                            .id(userID)
+                            .userTeamId(selectedTeamID)
+                            .build();
+
+                    mAWSAppSyncClient.mutate(UpdateUserMutation.builder().input(user).build())
+                            .enqueue(new GraphQLCall.Callback<UpdateUserMutation.Data>() {
                                 @Override
-                                public void handleMessage(Message inputMessage) {
-                                    // update the user team
-
+                                public void onResponse(@Nonnull Response<UpdateUserMutation.Data> response) {
+                                    Log.i(TAG, AWSMobileClient.getInstance().getUsername() +
+                                            "'s team successfully updated to team id " +
+                                            response.data().updateUser().team().id());
                                 }
-                            };
-                            h.obtainMessage().sendToTarget();
-                        }
-                    }
 
-                    @Override
-                    public void onError(Exception e) {
-                        Log.e(TAG, "INIT Initialization error.", e);
-                    }
+                                @Override
+                                public void onFailure(@Nonnull ApolloException e) {
+                                    Log.e(TAG, "Failed to update " +
+                                            AWSMobileClient.getInstance().getUsername() +
+                                            "'s team id to " + selectedTeamID, e);
+                                }
+                            });
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-        );
-
-        Handler h = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message inputMessage) {
-
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        };
-        h.obtainMessage().sendToTarget();
+        });
+        thread.start();
 
-//        finish();
+        finish();
     };
 
     @Override
@@ -168,6 +161,7 @@ public class Settings extends AppCompatActivity implements
         // set currentTeamID based on ID of selected team name
         String teamName = parent.getItemAtPosition(position).toString();
         selectedTeamID = teamIDsMap.get(teamName);
+        Log.i(TAG, "selected team " + selectedTeamID);
     }
 
     @Override

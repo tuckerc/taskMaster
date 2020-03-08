@@ -1,0 +1,29 @@
+type Task @model {
+  id: ID!
+  title: String
+  body: String
+  state: String
+  user: User @connection(name: "UserTasks")
+  files: [File] @connection(name: "TaskFiles")
+  team: Team @connection(name: "TeamTasks")
+}
+
+type Team @model {
+  id: ID!
+  name: String
+  users: [User] @connection(name: "UserTeam")
+  tasks: [Task] @connection(name: "TeamTasks")
+}
+
+type File @model {
+  id: ID!
+  name: String
+  task: Task @connection(name: "TaskFiles")
+}
+
+type User @model {
+  id: ID!
+  username: String
+  team: Team @connection(name: "UserTeam")
+  tasks: [Task] @connection(name: "UserTasks")
+}

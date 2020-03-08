@@ -1,71 +1,38 @@
 # this is an auto generated file. This will be overwritten
-query SyncTasks(
-  $filter: ModelTaskFilterInput
-  $limit: Int
-  $nextToken: String
-  $lastSync: AWSTimestamp
-) {
-  syncTasks(
-    filter: $filter
-    limit: $limit
-    nextToken: $nextToken
-    lastSync: $lastSync
-  ) {
-    items {
-      id
-      title
-      body
-      state
-      team {
-        id
-        name
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      files {
-        nextToken
-        startedAt
-      }
-      _version
-      _deleted
-      _lastChangedAt
-    }
-    nextToken
-    startedAt
-  }
-}
 query GetTask($id: ID!) {
   getTask(id: $id) {
     id
     title
     body
     state
-    team {
+    user {
       id
-      name
+      username
+      team {
+        id
+        name
+      }
       tasks {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
     }
     files {
       items {
         id
         name
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
   }
 }
 query ListTasks(
@@ -79,72 +46,41 @@ query ListTasks(
       title
       body
       state
-      team {
+      user {
         id
-        name
-        _version
-        _deleted
-        _lastChangedAt
+        username
       }
       files {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
+      team {
+        id
+        name
+      }
     }
     nextToken
-    startedAt
-  }
-}
-query SyncTeams(
-  $filter: ModelTeamFilterInput
-  $limit: Int
-  $nextToken: String
-  $lastSync: AWSTimestamp
-) {
-  syncTeams(
-    filter: $filter
-    limit: $limit
-    nextToken: $nextToken
-    lastSync: $lastSync
-  ) {
-    items {
-      id
-      name
-      tasks {
-        nextToken
-        startedAt
-      }
-      _version
-      _deleted
-      _lastChangedAt
-    }
-    nextToken
-    startedAt
   }
 }
 query GetTeam($id: ID!) {
   getTeam(id: $id) {
     id
     name
+    users {
+      items {
+        id
+        username
+      }
+      nextToken
+    }
     tasks {
       items {
         id
         title
         body
         state
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
   }
 }
 query ListTeams(
@@ -156,48 +92,14 @@ query ListTeams(
     items {
       id
       name
+      users {
+        nextToken
+      }
       tasks {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
     }
     nextToken
-    startedAt
-  }
-}
-query SyncFiles(
-  $filter: ModelFileFilterInput
-  $limit: Int
-  $nextToken: String
-  $lastSync: AWSTimestamp
-) {
-  syncFiles(
-    filter: $filter
-    limit: $limit
-    nextToken: $nextToken
-    lastSync: $lastSync
-  ) {
-    items {
-      id
-      name
-      task {
-        id
-        title
-        body
-        state
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      _version
-      _deleted
-      _lastChangedAt
-    }
-    nextToken
-    startedAt
   }
 }
 query GetFile($id: ID!) {
@@ -209,24 +111,18 @@ query GetFile($id: ID!) {
       title
       body
       state
-      team {
+      user {
         id
-        name
-        _version
-        _deleted
-        _lastChangedAt
+        username
       }
       files {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
+      team {
+        id
+        name
+      }
     }
-    _version
-    _deleted
-    _lastChangedAt
   }
 }
 query ListFiles(
@@ -243,15 +139,53 @@ query ListFiles(
         title
         body
         state
-        _version
-        _deleted
-        _lastChangedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
     }
     nextToken
-    startedAt
+  }
+}
+query GetUser($id: ID!) {
+  getUser(id: $id) {
+    id
+    username
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
+    tasks {
+      items {
+        id
+        title
+        body
+        state
+      }
+      nextToken
+    }
+  }
+}
+query ListUsers(
+  $filter: ModelUserFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listUsers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      username
+      team {
+        id
+        name
+      }
+      tasks {
+        nextToken
+      }
+    }
+    nextToken
   }
 }

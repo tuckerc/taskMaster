@@ -1,8 +1,8 @@
 {
-    "identityPoolName": "taskmasterd40753fd_identitypool_d40753fd",
+    "identityPoolName": "taskmaster935d7ee4_identitypool_935d7ee4",
     "allowUnauthenticatedIdentities": true,
-    "resourceNameTruncated": "taskmad40753fd",
-    "userPoolName": "taskmasterd40753fd_userpool_d40753fd",
+    "resourceNameTruncated": "taskma935d7ee4",
+    "userPoolName": "taskmaster935d7ee4_userpool_935d7ee4",
     "autoVerifiedAttributes": [
         "email"
     ],
@@ -12,8 +12,8 @@
     ],
     "smsAuthenticationMessage": "Your authentication code is {####}",
     "smsVerificationMessage": "Your verification code is {####}",
-    "emailVerificationSubject": "Welcome to Task Master!",
-    "emailVerificationMessage": "Please verify your email. Your verification code is {####}.",
+    "emailVerificationSubject": "Your verification code",
+    "emailVerificationMessage": "Your verification code is {####}",
     "defaultPasswordPolicy": false,
     "passwordPolicyMinLength": 8,
     "passwordPolicyCharacters": [],
@@ -23,18 +23,14 @@
     "userpoolClientGenerateSecret": true,
     "userpoolClientRefreshTokenValidity": 30,
     "userpoolClientWriteAttributes": [
-        "given_name",
-        "name",
         "email"
     ],
     "userpoolClientReadAttributes": [
-        "email",
-        "given_name",
-        "name"
+        "email"
     ],
-    "userpoolClientLambdaRole": "taskmad40753fd_userpoolclient_lambda_role",
-    "userpoolClientSetAttributes": true,
-    "resourceName": "taskmasterd40753fd",
+    "userpoolClientLambdaRole": "taskma935d7ee4_userpoolclient_lambda_role",
+    "userpoolClientSetAttributes": false,
+    "resourceName": "taskmaster935d7ee4",
     "authSelections": "identityPoolAndUserPool",
     "authRoleArn": {
         "Fn::GetAtt": [
@@ -48,16 +44,7 @@
             "Arn"
         ]
     },
-    "useDefault": "manual",
+    "useDefault": "default",
     "userPoolGroupList": [],
-    "dependsOn": [],
-    "thirdPartyAuth": false,
-    "userPoolGroups": false,
-    "adminQueries": true,
-    "triggers": "{}",
-    "hostedUI": false,
-    "parentStack": {
-        "Ref": "AWS::StackId"
-    },
-    "permissions": []
+    "dependsOn": []
 }

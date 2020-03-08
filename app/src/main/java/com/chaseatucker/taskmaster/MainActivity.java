@@ -13,6 +13,8 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.amazonaws.amplify.generated.graphql.CreateUserMutation;
+import com.amazonaws.amplify.generated.graphql.ListUsersQuery;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.Callback;
 import com.amazonaws.mobile.client.SignInUIOptions;
@@ -21,14 +23,22 @@ import com.amazonaws.mobile.client.UserState;
 import com.amazonaws.mobile.client.UserStateDetails;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
+import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
 import com.amazonaws.mobileconnectors.pinpoint.PinpointConfiguration;
 import com.amazonaws.mobileconnectors.pinpoint.PinpointManager;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
+import com.apollographql.apollo.GraphQLCall;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+
+import javax.annotation.Nonnull;
+
+import type.CreateUserInput;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,6 +48,12 @@ public class MainActivity extends AppCompatActivity {
     String userID;
 
     private static PinpointManager pinpointManager;
+
+    // OnClickListener to go to add a team
+    private View.OnClickListener goToNewTeamCreator = v -> {
+        Intent i = new Intent(getBaseContext(), AddATeam.class);
+        startActivity(i);
+    };
 
     // OnClickListener to go to add a task
     private View.OnClickListener goToNewTaskCreator = v -> {
@@ -72,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // add on click listener to newTaskButton
+        Button newTeamButton = findViewById(R.id.main_add_a_team_btn);
+        newTeamButton.setOnClickListener(goToNewTeamCreator);
 
         // add on click listener to newTaskButton
         Button newTaskButton = findViewById(R.id.addTaskButton);
@@ -112,6 +132,69 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 givenName = AWSMobileClient.getInstance().getUserAttributes().get("given_name");
                                 userID = AWSMobileClient.getInstance().getUserAttributes().get("sub");
+
+                                mAWSAppSyncClient.query(ListUsersQuery.builder().build())
+                                        .responseFetcher(AppSyncResponseFetchers.NETWORK_FIRST)
+                                        .enqueue(new GraphQLCall.Callback<ListUsersQuery.Data>() {
+                                            @Override
+                                            public void onResponse(@Nonnull Response<ListUsersQuery.Data> response) {
+                                                if(response.data().listUsers() != null) {
+                                                    boolean userCreated = false;
+                                                    for(ListUsersQuery.Item user : response.data().listUsers().items()) {
+                                                        if(user.id().equals(userID))
+                                                            userCreated = true;
+                                                    }
+                                                    if(!userCreated) {
+                                                        CreateUserInput newUser = CreateUserInput.builder()
+                                                                .id(userID)
+                                                                .username(AWSMobileClient.getInstance().getUsername())
+                                                                .build();
+
+                                                        mAWSAppSyncClient.mutate(CreateUserMutation.builder()
+                                                                .input(newUser).build()).enqueue(
+                                                                new GraphQLCall.Callback<CreateUserMutation.Data>() {
+                                                                    @Override
+                                                                    public void onResponse(@Nonnull Response<CreateUserMutation.Data> response) {
+                                                                        Log.i(TAG, "new user " + response.data().createUser().username()
+                                                                        + " successfully created");
+                                                                    }
+
+                                                                    @Override
+                                                                    public void onFailure(@Nonnull ApolloException e) {
+                                                                        Log.e(TAG, "failure creating user " + e);
+                                                                    }
+                                                                }
+                                                        );
+                                                    }
+                                                } else {
+                                                    CreateUserInput newUser = CreateUserInput.builder()
+                                                            .id(userID)
+                                                            .username(AWSMobileClient.getInstance().getUsername())
+                                                            .build();
+
+                                                    mAWSAppSyncClient.mutate(CreateUserMutation.builder()
+                                                            .input(newUser).build()).enqueue(
+                                                            new GraphQLCall.Callback<CreateUserMutation.Data>() {
+                                                                @Override
+                                                                public void onResponse(@Nonnull Response<CreateUserMutation.Data> response) {
+                                                                    Log.i(TAG, "new user " + response.data().createUser().username()
+                                                                            + " successfully created");
+                                                                }
+
+                                                                @Override
+                                                                public void onFailure(@Nonnull ApolloException e) {
+                                                                    Log.e(TAG, "failure creating user " + e);
+                                                                }
+                                                            }
+                                                    );
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(@Nonnull ApolloException e) {
+
+                                            }
+                                        });
                             } catch (Exception e) {
                                 Log.i(TAG, "error getting userAttributes \n" + e);
                             }
@@ -152,7 +235,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResult(UserStateDetails result) {
                         Log.d(TAG, "onResult: " + result.getUserState());
-
                     }
 
                     @Override

@@ -5,31 +5,34 @@ subscription OnCreateTask {
     title
     body
     state
-    team {
+    user {
       id
-      name
+      username
+      team {
+        id
+        name
+      }
       tasks {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
     }
     files {
       items {
         id
         name
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
   }
 }
 subscription OnUpdateTask {
@@ -38,31 +41,34 @@ subscription OnUpdateTask {
     title
     body
     state
-    team {
+    user {
       id
-      name
+      username
+      team {
+        id
+        name
+      }
       tasks {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
     }
     files {
       items {
         id
         name
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
   }
 }
 subscription OnDeleteTask {
@@ -71,97 +77,100 @@ subscription OnDeleteTask {
     title
     body
     state
-    team {
+    user {
       id
-      name
+      username
+      team {
+        id
+        name
+      }
       tasks {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
     }
     files {
       items {
         id
         name
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
   }
 }
 subscription OnCreateTeam {
   onCreateTeam {
     id
     name
+    users {
+      items {
+        id
+        username
+      }
+      nextToken
+    }
     tasks {
       items {
         id
         title
         body
         state
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
   }
 }
 subscription OnUpdateTeam {
   onUpdateTeam {
     id
     name
+    users {
+      items {
+        id
+        username
+      }
+      nextToken
+    }
     tasks {
       items {
         id
         title
         body
         state
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
   }
 }
 subscription OnDeleteTeam {
   onDeleteTeam {
     id
     name
+    users {
+      items {
+        id
+        username
+      }
+      nextToken
+    }
     tasks {
       items {
         id
         title
         body
         state
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
     }
-    _version
-    _deleted
-    _lastChangedAt
   }
 }
 subscription OnCreateFile {
@@ -173,24 +182,18 @@ subscription OnCreateFile {
       title
       body
       state
-      team {
+      user {
         id
-        name
-        _version
-        _deleted
-        _lastChangedAt
+        username
       }
       files {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
+      team {
+        id
+        name
+      }
     }
-    _version
-    _deleted
-    _lastChangedAt
   }
 }
 subscription OnUpdateFile {
@@ -202,24 +205,18 @@ subscription OnUpdateFile {
       title
       body
       state
-      team {
+      user {
         id
-        name
-        _version
-        _deleted
-        _lastChangedAt
+        username
       }
       files {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
+      team {
+        id
+        name
+      }
     }
-    _version
-    _deleted
-    _lastChangedAt
   }
 }
 subscription OnDeleteFile {
@@ -231,23 +228,92 @@ subscription OnDeleteFile {
       title
       body
       state
-      team {
+      user {
         id
-        name
-        _version
-        _deleted
-        _lastChangedAt
+        username
       }
       files {
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
+      team {
+        id
+        name
+      }
     }
-    _version
-    _deleted
-    _lastChangedAt
+  }
+}
+subscription OnCreateUser {
+  onCreateUser {
+    id
+    username
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
+    tasks {
+      items {
+        id
+        title
+        body
+        state
+      }
+      nextToken
+    }
+  }
+}
+subscription OnUpdateUser {
+  onUpdateUser {
+    id
+    username
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
+    tasks {
+      items {
+        id
+        title
+        body
+        state
+      }
+      nextToken
+    }
+  }
+}
+subscription OnDeleteUser {
+  onDeleteUser {
+    id
+    username
+    team {
+      id
+      name
+      users {
+        nextToken
+      }
+      tasks {
+        nextToken
+      }
+    }
+    tasks {
+      items {
+        id
+        title
+        body
+        state
+      }
+      nextToken
+    }
   }
 }
