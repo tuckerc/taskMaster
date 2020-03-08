@@ -1,6 +1,6 @@
 {
     "identityPoolName": "taskmasterd40753fd_identitypool_d40753fd",
-    "allowUnauthenticatedIdentities": true,
+    "allowUnauthenticatedIdentities": false,
     "resourceNameTruncated": "taskmad40753fd",
     "userPoolName": "taskmasterd40753fd_userpool_d40753fd",
     "autoVerifiedAttributes": [
@@ -33,7 +33,7 @@
         "name"
     ],
     "userpoolClientLambdaRole": "taskmad40753fd_userpoolclient_lambda_role",
-    "userpoolClientSetAttributes": true,
+    "userpoolClientSetAttributes": false,
     "resourceName": "taskmasterd40753fd",
     "authSelections": "identityPoolAndUserPool",
     "authRoleArn": {
@@ -53,7 +53,7 @@
     "dependsOn": [],
     "thirdPartyAuth": false,
     "userPoolGroups": false,
-    "adminQueries": true,
+    "adminQueries": false,
     "triggers": "{}",
     "hostedUI": false,
     "parentStack": {

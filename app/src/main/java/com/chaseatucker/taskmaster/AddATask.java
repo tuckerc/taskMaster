@@ -1,6 +1,7 @@
 package com.chaseatucker.taskmaster;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -68,6 +69,7 @@ public class AddATask extends AppCompatActivity implements
     String taskNameStr;
     String taskBodyStr;
     String newestFileID;
+    String filePath;
 
     // Create an anonymous implementation of OnClickListener
     private View.OnClickListener newTaskCreateListener = new View.OnClickListener() {
@@ -111,7 +113,7 @@ public class AddATask extends AppCompatActivity implements
                                                 Log.i(TAG, "created file task id: " + response.data().createFile().task().id());
 
                                                 newestFileID = response.data().createFile().id();
-                                                uploadWithTransferUtility(fileUri);
+                                                uploadWithTransferUtility(filePath);
                                             }
 
                                             @Override
@@ -190,7 +192,7 @@ public class AddATask extends AppCompatActivity implements
                 ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
             } else {
                 Intent i = new Intent(
-                        Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        Intent.ACTION_OPEN_DOCUMENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(i, PICKFILE_REQUEST_CODE);
             }
         });
@@ -204,6 +206,8 @@ public class AddATask extends AppCompatActivity implements
         if(requestCode == PICKFILE_REQUEST_CODE && resultCode == -1 && null != data) {
             fileUri = data.getData();
             fileName = getFileName(fileUri);
+            filePath = getRealPathFromURI(fileUri);
+            Log.i(TAG, "filePath: " + filePath);
             TextView tvItemPath = this.findViewById(R.id.tv_file_path);
             tvItemPath.setText(fileName);
         }
@@ -229,6 +233,24 @@ public class AddATask extends AppCompatActivity implements
             }
         }
         return result;
+    }
+
+    private String getRealPathFromURI(Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            String[] proj = { MediaStore.Images.Media.DATA };
+            cursor = getContentResolver().query(contentUri,  proj, null, null, null);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        } catch (Exception e) {
+            Log.e(TAG, "getRealPathFromURI Exception : " + e.toString());
+            return "";
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     @Override
@@ -275,7 +297,7 @@ public class AddATask extends AppCompatActivity implements
 
     }
 
-    public void uploadWithTransferUtility(Uri uri) {
+    public void uploadWithTransferUtility(String filePath) {
 
         TransferUtility transferUtility =
                 TransferUtility.builder()
@@ -284,15 +306,17 @@ public class AddATask extends AppCompatActivity implements
                         .s3Client(new AmazonS3Client(AWSMobileClient.getInstance()))
                         .build();
 
-        String[] filePathColumn = { MediaStore.Images.Media.DATA };
+//        String[] filePathColumn = { MediaStore.Images.Media.DATA };
+//
+//        Cursor cursor = getContentResolver().query(uri,
+//                filePathColumn, null, null, null);
+//        cursor.moveToFirst();
+//
+//        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+//        String filePath = cursor.getString(columnIndex);
+//        cursor.close();
 
-        Cursor cursor = getContentResolver().query(uri,
-                filePathColumn, null, null, null);
-        cursor.moveToFirst();
 
-        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-        String filePath = cursor.getString(columnIndex);
-        cursor.close();
 
         TransferObserver uploadObserver =
                 transferUtility.upload(

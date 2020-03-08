@@ -103,13 +103,13 @@ Parameters:
                 
   hostedUI:
     Type: String
-                              
+                  
   parentStack:
     Type: String
                 
   permissions:
     Type: CommaDelimitedList
-    
+                
 Conditions:
   ShouldNotCreateEnvResources: !Equals [ !Ref env, NONE ]
 
@@ -204,9 +204,6 @@ Resources:
     Properties:
       ClientName: taskmad40753fd_app_clientWeb
       
-      ReadAttributes: !Ref userpoolClientReadAttributes
-      WriteAttributes: !Ref userpoolClientWriteAttributes
-      
       RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
       UserPoolId: !Ref UserPool
     DependsOn: UserPool
@@ -216,9 +213,6 @@ Resources:
     Type: "AWS::Cognito::UserPoolClient"
     Properties:
       ClientName: taskmad40753fd_app_client
-      
-      ReadAttributes: !Ref userpoolClientReadAttributes
-      WriteAttributes: !Ref userpoolClientWriteAttributes
       
       GenerateSecret: !Ref userpoolClientGenerateSecret
       RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
